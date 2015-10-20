@@ -16,7 +16,7 @@ import re
 
 import pytz
 import pysolar
-from PIL import Image, ImageOps, ImageEnhance
+from PIL import Image, ImageOps, ImageEnhance, ImageChops
 
 from settings import GFS_FOLDER
 from utils import logger
@@ -255,7 +255,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     # Intermediary debug image:
     cloud_layer.save(png_cloud_mask_file_path.replace(".png", ".not-inverted.png"))
     
-    cloud_layer = cloud_layer.offset(translate_x, 0)
+    cloud_layer = ImageChops.offset(cloud_layer, translate_x, 0)
     
     cloud_layer = ImageOps.invert(cloud_layer)
     cloud_layer.save(png_cloud_mask_file_path)
@@ -276,7 +276,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     cloud_layer.paste(extruded_cloud_layer, (0, 0), extruded_cloud_layer)
     
     logger.debug("Moving the image back to its original position")
-    cloud_layer = cloud_layer.offset(translate_x * -1, 0)
+    cloud_layer = ImageChops.offset(cloud_layer, translate_x * -1, 0)
     
     # Intermediary debug image:
     cloud_layer.save(png_file_path.replace(".png", ".without-sun-mask.png"))
