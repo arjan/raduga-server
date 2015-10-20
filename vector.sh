@@ -1,6 +1,7 @@
 #!/bin/bash
 SLUG=$1
-cd /home/e/apps/raduga-server/static/gfs/$SLUG
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+cd static/gfs/$SLUG
 
 mv $SLUG.clouds.json $SLUG.clouds.json.bak
 convert GFS_half_degree.clouds_greymasked.$SLUG.pwat.png -negate -threshold 0 -negate GFS_half_degree.clouds_blackmasked.$SLUG.pwat.ppm
