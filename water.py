@@ -15,7 +15,7 @@ import os
 import re
 
 import pytz
-import Pysolar
+import pysolar
 from PIL import Image, ImageOps, ImageEnhance
 
 from settings import GFS_FOLDER
@@ -225,7 +225,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     altitudes = []
     for j in range(nj):
         for i in range(ni):
-            altitudes.append(Pysolar.GetAltitudeFast(latitude, longitude, DATE))
+            altitudes.append(pysolar.solar.get_altitude_fast(latitude, longitude, DATE))
             longitude += dl
         latitude += dph
     
