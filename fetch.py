@@ -110,10 +110,9 @@ def fetch_gfs():
             logger.debug("file %s exists already" % output_file9)
             break
         
-        # uri = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.mastergrb2f00&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug + "%2Fmaster"
         # We get forecasts for 6 and 9 hours later:
-        uri6 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.mastergrb2f06&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug + "%2Fmaster"
-        uri9 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.mastergrb2f09&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug + "%2Fmaster"
+        uri6 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2.1p00.f096&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
+        uri9 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2.1p00.f144&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
         
         logger.debug("retrieving file %s" % uri9)
         res9 = urllib.urlopen(uri9)
