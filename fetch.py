@@ -105,8 +105,8 @@ def fetch_gfs():
             break
         
         # We get forecasts for 6 and 9 hours later:
-        uri6 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2full.0p50.f096&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
-        uri9 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2full.0p50.f144&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
+        uri6 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2full.0p50.f000&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
+        uri9 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2full.0p50.f000&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
 
         try:
             logger.debug("retrieving file %s" % uri9)
