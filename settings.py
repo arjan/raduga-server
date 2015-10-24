@@ -15,10 +15,7 @@ WEATHER RESOURCES SETTINGS
 """
 
 ZOOM_LEVEL = z =  4
-TILE_SIZE = 256
 
-TILE_SERVER             = "http://{s}.tile.openweathermap.org/map/precipitation_cls/{z}/{x}/{y}.png"
-TILE_FOLDER             = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'raduga_tiles')
 STATIC_FOLDER           = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
 GFS_FOLDER              = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'gfs')
 PHOTO_FOLDER            = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'photos')
@@ -26,18 +23,6 @@ ELEKTRO_L_FOLDER        = os.path.join(os.path.abspath(os.path.dirname(__file__)
 ELEKTRO_L_SRC_FOLDER    = os.path.join(ELEKTRO_L_FOLDER, 'src')
 
 BOUNDS = [[41.196091, 19.62726], [81.851929, 191.010254]]
-
-def get_latest_prec_folder():
-    """
-    This is to find the latest folder of the form 2013-12-25T11:00:00
-    """
-    global TILE_FOLDER
-    for f in sorted(os.listdir(TILE_FOLDER), reverse=True):
-        # ['_earth.png', '_earth', '2013-12-25T11:00:00.png', '2013-12-25T11:00:00', '2013-12-24T12:00:00']
-        slug = f
-        path = os.path.join(TILE_FOLDER, f)
-        if re.match(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}', slug) and os.path.isdir(path):
-            return path, slug
 
 # This is to find the latest folder of the form 2014022100
 def get_latest_gfs_folder():
@@ -86,7 +71,6 @@ def get_latest_elektro_l_url():
     for f in sorted(os.listdir(ELEKTRO_L_FOLDER), reverse=True):
         return "/static/elektro/" + f
 
-LATEST_PREC_FOLDER, LATEST_PREC_SLUG = get_latest_prec_folder()
 LATEST_GFS_FOLDER, LATEST_GFS_SLUG   = get_latest_gfs_folder()
 
 """

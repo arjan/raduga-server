@@ -20,7 +20,7 @@ from utils import logger
 
 def find_rainbow_cities(GFS_SLUG):
     logger.debug("loading list of cities")
-    cities = json.loads(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "scrape", "cities.json")).read())
+    cities = json.loads(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "data", "cities.json")).read())
     
     logger.debug("loading specified rainbow analysis image")
     CURRENT_GFS_FOLDER = os.path.join(GFS_FOLDER, GFS_SLUG)

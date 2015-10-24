@@ -149,7 +149,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     png_cloud_mask_file_path                        = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.cloud_mask.%s.pwat.png" % THIS_GFS_SLUG)
     png_cloud_mask_extruded_file_path               = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.cloud_mask.extruded.%s.pwat.png" % THIS_GFS_SLUG)
 
-    russia_layer = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'russia.png'))
+    russia_layer = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', 'russia.png'))
 
     rainbow_json_file_path = os.path.join(THIS_GFS_FOLDER, "%s.rainbows.json" % THIS_GFS_SLUG)
     clouds_json_file_path = os.path.join(THIS_GFS_FOLDER, "%s.clouds.json" % THIS_GFS_SLUG)

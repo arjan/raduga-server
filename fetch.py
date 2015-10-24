@@ -5,7 +5,7 @@ from urllib.error import HTTPError
 from datetime import datetime, timedelta
 import os
 
-from settings import TILE_SERVER, TILE_FOLDER, GFS_FOLDER
+from settings import GFS_FOLDER
 from utils import logger
 
 """
@@ -18,39 +18,6 @@ Global Forecast System.
 
 No dependencies outside the Python Standard Library
 """
-
-
-def fetch_owm():
-    """
-    Download the latest precipitation tiles from OpenWeatherMap.
-    At zoom level 4, there are 4² × 4² = 16 × 16 = 256 tiles.
-    
-    We don’t actually use OpenWeatherMap anymore in the application.
-    However, the code is still useful to download tiles from any map
-    that follows the conventions layed out by OpenStreetMap:
-    
-    We used a variation of this code to download the tiles from the
-    Stamen black & white map we used cached in the application.
-    """
-    ZOOM_LEVEL = z =  4
-    
-    def quantisised_time():
-        """
-        ISO representation of datetime rounded to nearest hour.
-        To use for folder names etcetera.
-        """
-        return datetime.now().strftime("%Y-%m-%dT%H:00:00Z")
-    
-    
-    for x in range(2 ** z):
-        for y in range(2 ** z):
-            uri = TILE_SERVER.format(s='a', z=z, x=x, y=y)
-            # make a folder like raduga_tiles/4/5/
-            path = os.path.join(TILE_FOLDER, quantisised_time(), str(z), str(x))
-            if not os.path.exists(path):
-                os.makedirs(path)
-            output_file = os.path.join(path, '%s.png' % y)
-            urllib.urlretrieve(uri, output_file)
 
 def fetch_gfs():
     """
