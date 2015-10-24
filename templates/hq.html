@@ -6,6 +6,8 @@
 
 <script src="../static/hq/js/jquery-1.11.1.js"></script>
 <script src="../static/hq/js/moment-with-langs.js"></script>
+
+
 <div>
     <h3>Upcoming predictions</h3>
     <dl>
@@ -28,6 +30,13 @@
         <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbow_cities.json">rainbow_cities.json</a></dd>
     {% endfor %}
     </dl>
+</div>
+
+<div>
+    <h3>Browse GFS data</h3>
+    {% for slug in gfs %}
+    <a href="/gfs/{{ slug }}">{{ slug }}</a>
+    {% endfor %}
 </div>
 
 <table>

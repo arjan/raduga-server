@@ -53,7 +53,8 @@ def latest_rainbow_cities():
 def hq():
     logs = db.log.find().sort("$natural", pymongo.DESCENDING)
     forecasts = get_forecast_info()
-    return render_template("hq.html", logs=logs, forecasts=forecasts)
+    gfs = os.listdir(GFS_FOLDER)
+    return render_template("hq.html", logs=logs, forecasts=forecasts, gfs=gfs)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")

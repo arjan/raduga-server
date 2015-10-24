@@ -1,20 +1,11 @@
 body {
-    font-family: 'NotCourierSans', monospace;
-    padding: 8px;
+    font-family: 'Helvetica', Arial, sans-serif;
+    font-size: 12px;
+    padding: 20px;
 }
 td {
-    padding: 0 2px;
+    padding: 4px;
 }
-td.scriptname {
-    width: 106px;
-}
-td.time {
-    width: 145px;
-}
-td.lineno {
-    width: 53px;
-}
-
 table {
     width: 100%
 }
