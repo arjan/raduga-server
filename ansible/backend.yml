@@ -1,0 +1,81 @@
+---
+- hosts: backend
+  vars:
+    backend: /home/raduga/raduga-server
+    
+  tasks:
+
+  - name: Install required packages
+    apt: pkg={{ item }} state=installed
+    with_items:
+    - python3
+    - python3-dev
+    - virtualenvwrapper
+    - git
+    - build-essential
+    - mongodb
+    - libjpeg-dev
+    - libjpeg8-dev
+    - libpng3 
+    - libfreetype6-dev
+    - zlib1g-dev
+    - openjdk-7-jre-headless
+    - imagemagick
+    - potrace
+    - supervisor
+    
+  - name: Set Time Zone
+    copy: src=files/timezone dest=/etc/timezone owner=root group=root mode=0644 
+    notify:
+      - update timezone
+
+  - name: Copy server environment
+    copy: src=files/environment dest=/etc
+
+  - name: Create raduga user
+    user: name=raduga comment="Raduga Backend user account"
+
+  - authorized_key: user=raduga key="{{ lookup('file', '/home/arjan/.ssh/id_rsa.pub') }}"
+
+  - name: Checkout the backend repo
+    git: repo=https://github.com/arjan/raduga-server.git dest={{ backend }} version=python3 accept_hostkey=True
+    sudo: yes
+    sudo_user: raduga
+
+  - name: Manually create the initial virtualenv
+    command: virtualenv /home/raduga/venv -p python3.4 creates="/home/raduga/venv"
+    sudo: yes
+    sudo_user: raduga
+
+  - name: Install requirements
+    pip: 
+      requirements=/home/raduga/raduga-server/requirements.txt 
+      virtualenv=/home/raduga/venv
+    sudo: yes
+    sudo_user: raduga
+
+  - name: Add local_settings.py
+    copy: src=files/local_settings.py dest={{ backend }}/local_settings.py
+    sudo: yes
+    sudo_user: raduga
+
+  - name: Add grib2json
+    unarchive: src=files/grib2json-0.8.0-SNAPSHOT.tar.gz dest=/home/raduga creates="/home/raduga/grib2json-0.8.0-SNAPSHOT"
+    sudo: yes
+    sudo_user: raduga
+
+  - name: Add predict.sh crontab
+    cron: name=predict minute="*/15" job="echo 'source /home/raduga/venv/bin/activate; {{ backend }}/predict.sh' | /bin/bash"
+    sudo: yes
+    sudo_user: raduga
+
+  - name: Install supervisor job
+    copy: src=files/server.conf dest=/etc/supervisor/conf.d/
+    notify: update supervisor
+
+  handlers:
+    - name: update timezone
+      command: dpkg-reconfigure --frontend noninteractive tzdata
+
+    - name: update supervisor
+      supervisorctl: name=raduga-server state=restarted
