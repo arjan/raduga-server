@@ -67,16 +67,16 @@ def img2features(image, colours=False):
         
         index =  (int(lon) - 25) * 4
     
-        start_colour  = rainbow_colours[index / 100]
+        start_colour = rainbow_colours[index // 100]
         try:
-            end_colour    = rainbow_colours[(index / 100) + 1]
+            end_colour = rainbow_colours[(index // 100) + 1]
         except IndexError:
-            end_colour    = rainbow_colours[6]
+            end_colour = rainbow_colours[6]
     
         percentage_start = index % 100
-        percentage_stop  = percentage_start + 2
+        percentage_stop = percentage_start + 2
     
-        return( blend_colours(start_colour, end_colour, percentage_start), blend_colours(start_colour, end_colour, percentage_stop) )
+        return(blend_colours(start_colour, end_colour, percentage_start), blend_colours(start_colour, end_colour, percentage_stop))
     
     def px2feature(px, colour=None):
         left    = px[0] * .5
@@ -134,7 +134,9 @@ def find_rainclouds(THIS_GFS_SLUG):
     logger.debug("starting cloud analysis with grib information from %s" % THIS_GFS_SLUG)
     
     DATE = datetime.strptime(THIS_GFS_SLUG, "%Y%m%d%H")       # strptime can’t handle timezones, what up with that?
-    DATE = DATE.replace(tzinfo=pytz.UTC)                        # we know it’s UTC so we add that info http://stackoverflow.com/questions/7065164/how-to-make-an-unaware-datetime-timezone-aware-in-python
+    #DATE = DATE.replace(tzinfo=pytz.UTC)                        # we know it’s UTC so we add that info http://stackoverflow.com/questions/7065164/how-to-make-an-unaware-datetime-timezone-aware-in-python
+
+    logger.debug("date = {}".format(DATE))
 
     grib_file_path = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.%s.pwat.grib" % THIS_GFS_SLUG)
     json_file_path = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.%s.pwat.json" % THIS_GFS_SLUG)
@@ -187,7 +189,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     # distance between grid points (e.g., 2.5 deg lon, 2.5 deg lat)
     dl = header['dx']
     dph = header['dy']
-    
+
     # number of grid points W-E and N-S (e.g., 144 x 73)
     ni = header['nx']
     nj = header['ny']
@@ -206,22 +208,24 @@ def find_rainclouds(THIS_GFS_SLUG):
     
     logger.debug("Converting data to color, and writing it to canvas")
     cloud_layer = Image.new("L", (ni, nj))
-    cloud_layer.putdata(map(prec2color, data))
+    cloud_layer.putdata(list(map(prec2color, data)))
     
     cloud_layer_greyscale = cloud_layer
     # Intermediary debug image:
     cloud_layer_greyscale.save(png_clouds_greyscale_file_path)
     
-    
     logger.debug("Pushing the contrast and then tresholding the clouds")
     enhancer = ImageEnhance.Contrast(cloud_layer)
-    cloud_layer = enhancer.enhance(8)
+    cloud_layer = enhancer.enhance(80)
     threshold = 191
     cloud_layer = cloud_layer.point(lambda p: p > threshold and 255)  
     
     cloud_layer_greyscale.paste(cloud_layer, (0,0), cloud_layer)
     
-    logger.debug("Calculating the solar altitudes for all combinations of latitude and longitude")
+    logger.debug("Calculating the solar altitudes for all combinations of latitude and longitude @ {}".format(DATE))
+    DATE = datetime(2015, 5, 24, 11, 0, 0)
+    logger.debug("{}".format(DATE))
+
     altitudes = []
     for j in range(nj):
         for i in range(ni):
@@ -238,18 +242,18 @@ def find_rainclouds(THIS_GFS_SLUG):
     sun_mask = Image.new("L", (ni, nj))
     logger.debug("Calculating the colours based on the altitudes")
     colors = map(altitude2colors, altitudes)
-    sun_mask.putdata(colors)
+    sun_mask.putdata(list(colors))
     # Intermediary debug image:
     sun_mask.save(png_sun_mask_file_path)
     
     # Calculate where the sun is in the image
     sun_i = altitudes.index(max(altitudes))
-    sun_y = sun_i / ni
+    sun_y = sun_i // ni
     sun_x = sun_i % ni
     logger.debug("Found the sun at index %s corresponding to %s, %s" % (sun_i, sun_x, sun_y))
     sun_mask.putpixel((sun_x, sun_y), 255)
     
-    middle = ni / 2
+    middle = ni // 2
     translate_x = middle - sun_x
     logger.debug("Moving the image %s pixels to the right to have the sun exactly in the middle" % translate_x)
     # Intermediary debug image:

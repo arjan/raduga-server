@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import urllib
+from urllib.request import urlopen
+from urllib.error import HTTPError
 from datetime import datetime, timedelta
 import os
 
@@ -17,13 +18,6 @@ Global Forecast System.
 
 No dependencies outside the Python Standard Library
 """
-
-
-
-class AppURLopener(urllib.FancyURLopener):
-    version = 'Mozilla/5.0'
- 
-urllib._urlopener = AppURLopener()
 
 
 def fetch_owm():
@@ -77,7 +71,7 @@ def fetch_gfs():
     
     # Possible values for hour: [0, 6, 12, 18]
     # We do integer division by 6 to round to 6.
-    d_rounded = d.replace(hour = d.hour / 6 * 6)
+    d_rounded = d.replace(hour=(d.hour // 6)*6)
     
     while True:
         """
@@ -113,20 +107,22 @@ def fetch_gfs():
         # We get forecasts for 6 and 9 hours later:
         uri6 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2full.0p50.f096&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
         uri9 = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" + d_rounded.strftime("%H") + "z.pgrb2full.0p50.f144&lev_entire_atmosphere_%5C%28considered_as_a_single_layer%5C%29=on&var_PWAT=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs." + slug
-        
-        logger.debug("retrieving file %s" % uri9)
-        res9 = urllib.urlopen(uri9)
-        c = res9.getcode()
-        if c == 200:
+
+        try:
+            logger.debug("retrieving file %s" % uri9)
+            res9 = urlopen(uri9)
+        except HTTPError as e:
+            logger.debug("uri error {}: {}".format(uri9, e))
+
+        try:
             logger.debug("retrieving file %s" % uri6)
-            res6 = urllib.urlopen(uri6) 
+            res6 = urlopen(uri6)
+        except HTTPError as e:
+            logger.debug("uri error {}: {}".format(uri6, e))
+
+        if res9 and res6:
             break
-        
-        if c == 404:
-            logger.debug("uri %s not available (yet)" % uri9)
-        else:
-            logger.debug("uri %s failed with error code %s" % (uri9, c))
-        
+
         d_rounded = d_rounded - six_hours
     
     if res9 and res6:
