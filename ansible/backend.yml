@@ -81,7 +81,7 @@
     notify: update supervisor
 
   - name: Install nginx vhost
-    copy: src=files/nginx.conf dest=/etc/nginx/sites-enabled/raduga
+    copy: src=files/nginx.conf dest=/etc/nginx/sites-enabled/01raduga
     notify: reload nginx
 
   handlers:
