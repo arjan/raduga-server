@@ -252,7 +252,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     # Calculate where the sun is in the image
     sun_i = altitudes.index(max(altitudes))
     sun_y = sun_i // ni
-    sun_x = sun_i % ni
+    sun_x = (sun_i + ni // 2) % ni
     logger.debug("Found the sun at index %s corresponding to %s, %s" % (sun_i, sun_x, sun_y))
     sun_mask.putpixel((sun_x, sun_y), 255)
 
