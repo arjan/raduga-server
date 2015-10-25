@@ -243,6 +243,9 @@ def find_rainclouds(THIS_GFS_SLUG):
     logger.debug("Calculating the colours based on the altitudes")
     colors = map(altitude2colors, altitudes)
     sun_mask.putdata(list(colors))
+
+    sun_mask = ImageChops.offset(sun_mask, ni // 2, 0)
+
     # Intermediary debug image:
     sun_mask.save(png_sun_mask_file_path)
 
