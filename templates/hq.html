@@ -1,53 +1,47 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
+{% extends "base.html" %}
 
-<link rel="stylesheet" href="/static/hq/reset.css" />
-<link rel="stylesheet" href="/static/hq/hq.css" />
+    {% block content %}
+    <div>
+        <h3>Upcoming predictions</h3>
+        <dl>
+            {% for forecast in forecasts if forecast.future %}
+            <dt content="{{ forecast.date.strftime('%Y-%m-%dT%H:%M:%S%z') }}" class="time">{{ forecast.date.strftime('%H:%M %d %b') }}</dt>
+            <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbows.json">rainbows.json</a></dd>
+            <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.clouds.json">clouds.json</a></dd>
+            <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbow_cities.json">rainbow_cities.json</a></dd>
+            {% endfor %}
+        </dl>
+    </div>
 
-<script src="../static/hq/js/jquery-1.11.1.js"></script>
-<script src="../static/hq/js/moment-with-langs.js"></script>
+    <div>
+        <h3>Most recent prediction</h3>
+        <dl>
+            {% for forecast in forecasts if not forecast.future %}
+            <dt content="{{ forecast.date.strftime('%Y-%m-%dT%H:%M:%S%z') }}" class="time">{{ forecast.date.strftime('%H:%M %d %b') }}</dt>
+            <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbows.json">rainbows.json</a></dd>
+            <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.clouds.json">clouds.json</a></dd>
+            <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbow_cities.json">rainbow_cities.json</a></dd>
+            {% endfor %}
+        </dl>
+    </div>
 
+    <div>
+        <h3>Browse GFS data</h3>
+        {% for slug in gfs %}
+        <a href="/hq/gfs/{{ slug }}">{{ slug }}</a>
+        {% endfor %}
+    </div>
 
-<div>
-    <h3>Upcoming predictions</h3>
-    <dl>
-    {% for forecast in forecasts if forecast.future %}
-        <dt content="{{ forecast.date.strftime('%Y-%m-%dT%H:%M:%S%z') }}" class="time">{{ forecast.date.strftime('%H:%M %d %b') }}</dt>
-        <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbows.json">rainbows.json</a></dd>
-        <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.clouds.json">clouds.json</a></dd>
-        <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbow_cities.json">rainbow_cities.json</a></dd>
-    {% endfor %}
-    </dl>
-</div>
+    <table>
+        <tr>
+            <th width="10%">script</th>
+            <th width="10%">date</th>
+            <th>message</th>
+        </tr>
+        
+        {% for log in logs %}
+        <tr class="{{ log.levelname }} {{ log.pathname.split('/')[-1].replace(".py","") }}"><td class="scriptname">{{ log.pathname.split('/')[-1] }}</td><td class="time" content="{{ log.time.strftime('%Y-%m-%dT%H:%M:%S%z') }}">{{ log.time.strftime('%H:%M %d %b') }}</td><td class="lineno">{{ '%04d' % log.lineno }}</td><td class="message">{{ log.msg }}</td></tr>
+        {% endfor %}
+    </table>
 
-<div>
-    <h3>Most recent prediction</h3>
-    <dl>
-    {% for forecast in forecasts if not forecast.future %}
-        <dt content="{{ forecast.date.strftime('%Y-%m-%dT%H:%M:%S%z') }}" class="time">{{ forecast.date.strftime('%H:%M %d %b') }}</dt>
-        <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbows.json">rainbows.json</a></dd>
-        <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.clouds.json">clouds.json</a></dd>
-        <dd><a href="/static/gfs/{{ forecast.slug }}/{{ forecast.slug }}.rainbow_cities.json">rainbow_cities.json</a></dd>
-    {% endfor %}
-    </dl>
-</div>
-
-<div>
-    <h3>Browse GFS data</h3>
-    {% for slug in gfs %}
-    <a href="/gfs/{{ slug }}">{{ slug }}</a>
-    {% endfor %}
-</div>
-
-<table>
-{% for log in logs %}
-<tr class="{{ log.levelname }} {{ log.pathname.split('/')[-1].replace(".py","") }}"><td class="scriptname">{{ log.pathname.split('/')[-1] }}</td><td class="time" content="{{ log.time.strftime('%Y-%m-%dT%H:%M:%S%z') }}">{{ log.time.strftime('%H:%M %d %b') }}</td><td class="lineno">{{ '%04d' % log.lineno }}</td><td class="message">{{ log.msg }}</td></tr>
-{% endfor %}
-</table>
-
-<script>
-    // relative time
-    $("td.time, dt.time").each(function(i, el) {
-        $(el).text(moment($(el).attr("content")).fromNow());
-    });
-</script>
+{% endblock %}

@@ -49,11 +49,15 @@ def latest_clouds():
 def latest_rainbow_cities():
     return redirect(get_latest_rainbow_cities_url())
 
+@app.route("/hq/gfs/<string:slug>")
+def hq_slug(slug):
+    return render_template("hq_slug.html", slug=slug)
+
 @app.route("/hq/")
 def hq():
     logs = db.log.find().sort("$natural", pymongo.DESCENDING)
     forecasts = get_forecast_info()
-    gfs = os.listdir(GFS_FOLDER)
+    gfs = sorted(os.listdir(GFS_FOLDER))
     return render_template("hq.html", logs=logs, forecasts=forecasts, gfs=gfs)
 
 if __name__ == '__main__':

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>{{ slug }}</h3>
+    
+    <img class="debug" src="/static/gfs/{{ slug }}/GFS_half_degree.clouds_greyscale.{{ slug }}.pwat.png" />
+    <img class="debug" src="/static/gfs/{{ slug }}/GFS_half_degree.sun_mask.{{ slug }}.pwat.png" />
+    <img class="debug" src="/static/gfs/{{ slug }}/GFS_half_degree.{{ slug }}.pwat.without-sun-mask.png" />
+    <img class="debug" src="/static/gfs/{{ slug }}/GFS_half_degree.clouds_greymasked.before_russia.{{ slug }}.pwat.png" />
+    <img class="debug" src="/static/gfs/{{ slug }}/GFS_half_degree.clouds_greymasked.{{ slug }}.pwat.png" />
+{% endblock %}

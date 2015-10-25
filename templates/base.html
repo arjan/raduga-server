@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<head>
+    <title>Raduga HQ</title>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="/static/hq/reset.css" />
+    <link rel="stylesheet" href="/static/hq/hq.css" />
+
+    <script src="../static/hq/js/jquery-1.11.1.js"></script>
+    <script src="../static/hq/js/moment-with-langs.js"></script>
+</head>
+
+<body>
+    <h1>Raduga HQ</h1>
+
+    {% block content %}
+    {% endblock %}
+
+    <script>
+        // relative time
+        $("td.time, dt.time").each(function(i, el) {
+        $(el).text(moment($(el).attr("content")).fromNow());
+        });
+    </script>
+</body>
