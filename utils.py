@@ -36,6 +36,7 @@ except ImportError:
 if sys.version_info[0] >= 3:
     unicode = str
 
+
 class MongoFormatter(logging.Formatter):
     def format(self, record):
         """Format exception object as a string"""
@@ -95,17 +96,20 @@ class MongoHandler(logging.Handler):
             logging.error("Unable to save log record: %s", e.message,
                 exc_info=True)
 
-logger = logging.getLogger('Радуга')
-logger.setLevel(logging.DEBUG)
 
-if DEBUG:
-    ch = logging.StreamHandler( sys.__stdout__ )
-    ch.setLevel(logging.DEBUG)
-    
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(ch)
-else:
-    logger.addHandler(MongoHandler.to(db='raduga', collection='log'))
+def install_logger():
+    logger = logging.getLogger('Радуга')
+    logger.setLevel(logging.DEBUG)
 
+    if DEBUG:
+        ch = logging.StreamHandler(sys.__stdout__)
+        ch.setLevel(logging.DEBUG)
+    
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+    
+        logger.addHandler(ch)
+    else:
+        logger.addHandler(MongoHandler.to(db='raduga', collection='log'))
+
+    return logger

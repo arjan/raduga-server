@@ -19,7 +19,9 @@ import pysolar
 from PIL import Image, ImageOps, ImageEnhance, ImageChops
 
 from settings import GFS_FOLDER
-from utils import logger
+import utils
+
+logger = utils.install_logger()
 
 try:
     from settings import GRIB2JSON_PATH
@@ -134,7 +136,7 @@ def find_rainclouds(THIS_GFS_SLUG):
     logger.debug("starting cloud analysis with grib information from %s" % THIS_GFS_SLUG)
 
     DATE = datetime.strptime(THIS_GFS_SLUG, "%Y%m%d%H")       # strptime can’t handle timezones, what up with that?
-    #DATE = DATE.replace(tzinfo=pytz.UTC)                        # we know it’s UTC so we add that info http://stackoverflow.com/questions/7065164/how-to-make-an-unaware-datetime-timezone-aware-in-python
+    DATE = DATE.replace(tzinfo=pytz.UTC)                        # we know it’s UTC so we add that info http://stackoverflow.com/questions/7065164/how-to-make-an-unaware-datetime-timezone-aware-in-python
 
     logger.debug("date = {}".format(DATE))
 

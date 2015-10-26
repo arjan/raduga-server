@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import os
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from datetime import datetime, timedelta
-import os
 
 from settings import GFS_FOLDER
-from utils import logger
+from utils import install_logger
+
+logger = install_logger()
 
 """
 This is the code that serves to download the raw precipitation data.
