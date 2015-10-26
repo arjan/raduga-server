@@ -13,7 +13,7 @@ import geo
 import hq
 import utils
 
-from app import app, cache
+from app import app, cache, db
 from data.cities import data as cities
 
 
@@ -37,6 +37,13 @@ def latest_clouds():
 def get_rainbow_cities():
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), settings.get_latest_rainbow_cities_url()[1:]))
     return jsonify(dict(cities=json.loads(open(path).read())))
+
+
+@app.route("/app/user/<string:id>", methods=['POST'])
+def register_user(id):
+    user_data = dict(request.get_json(), id=id)
+    db.users.update({'id': id}, user_data, True)
+    return jsonify(dict(result="ok"))
 
 
 @app.route("/latest/clouds.png")
