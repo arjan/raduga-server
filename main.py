@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import json
+import os
+
 # Dependencies: Flask + PIL or Pillow
 from flask import request, jsonify
 
@@ -9,7 +12,7 @@ import geo
 import hq
 import utils
 
-from app import app
+from app import app, cache
 from data.cities import data as cities
 
 
@@ -26,6 +29,13 @@ def latest_rainbows():
 @app.route("/latest/clouds.json")
 def latest_clouds():
     return utils.nocache_redirect(settings.get_latest_clouds_url())
+
+
+@app.route("/app/rainbow-cities")
+@cache.cached(timeout=60)
+def get_rainbow_cities():
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), settings.get_latest_rainbow_cities_url()[1:]))
+    return jsonify(dict(cities=json.loads(open(path).read())))
 
 
 @app.route("/app/closest-cities")
