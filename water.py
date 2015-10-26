@@ -146,6 +146,7 @@ def find_rainclouds(THIS_GFS_SLUG):
 
     png_sun_mask_file_path                          = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.sun_mask.%s.pwat.png" % THIS_GFS_SLUG)
     png_clouds_greyscale_file_path                  = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.clouds_greyscale.%s.pwat.png" % THIS_GFS_SLUG)
+    png_clouds_alpha_file_path                       = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.clouds_alpha.%s.pwat.png" % THIS_GFS_SLUG)
     png_clouds_greymasked_file_path                 = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.clouds_greymasked.%s.pwat.png" % THIS_GFS_SLUG)
     png_clouds_greymasked_before_russia_file_path   = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.clouds_greymasked.before_russia.%s.pwat.png" % THIS_GFS_SLUG)
     png_cloud_mask_file_path                        = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.cloud_mask.%s.pwat.png" % THIS_GFS_SLUG)
@@ -216,6 +217,11 @@ def find_rainclouds(THIS_GFS_SLUG):
     # Intermediary debug image:
     cloud_layer_greyscale.save(png_clouds_greyscale_file_path)
 
+    # Output the alpha image
+    alpha_layer = Image.new("LA", (ni, nj))
+    alpha_layer.putdata(list(map(lambda p: (255, int(255-(255-p*6))), data)))
+    alpha_layer.save(png_clouds_alpha_file_path)
+    
     logger.debug("Pushing the contrast and then tresholding the clouds")
     enhancer = ImageEnhance.Contrast(cloud_layer)
     cloud_layer = enhancer.enhance(80)
