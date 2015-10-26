@@ -17,6 +17,8 @@ The code for the MongoDB logger is taken from https://github.com/puentesarrin/mo
 See LICENSE info below.
 """
 
+import flask
+
 import sys
 import logging
 import getpass
@@ -113,3 +115,16 @@ def install_logger():
         logger.addHandler(MongoHandler.to(db='raduga', collection='log'))
 
     return logger
+
+
+# Redirects should not be cached by the devices:
+def nocache_redirect(uri):
+    """
+    http://arusahni.net/blog/2014/03/flask-nocache.html
+    """
+    response = flask.redirect(uri)
+    response.headers['Last-Modified'] = datetime.now()
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response

@@ -1,45 +1,31 @@
 # -*- coding: utf-8 -*-
 
-# Python Standard Library 
-from datetime import datetime
-
 # Dependencies: Flask + PIL or Pillow
-from flask import send_from_directory, redirect as redirect_flask, render_template, request, Response, jsonify
+from flask import request, jsonify
 
 # Local imports
-from data.cities import data as cities
+import settings
 import geo
 import hq
+import utils
+
 from app import app
-import settings
-
-
-# Redirects should not be cached by the devices:
-def redirect(uri):
-    """
-    http://arusahni.net/blog/2014/03/flask-nocache.html
-    """
-    response = redirect_flask(uri)
-    response.headers['Last-Modified'] = datetime.now()
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
-    return response
+from data.cities import data as cities
 
 
 @app.route("/latest/rainbow_cities.json")
 def latest_rainbow_cities():
-    return redirect(settings.get_latest_rainbow_cities_url())
+    return utils.nocache_redirect(settings.get_latest_rainbow_cities_url())
 
 
 @app.route("/latest/rainbows.json")
 def latest_rainbows():
-    return redirect(settings.get_latest_rainbows_url())
+    return utils.nocache_redirect(settings.get_latest_rainbows_url())
 
 
 @app.route("/latest/clouds.json")
 def latest_clouds():
-    return redirect(settings.get_latest_clouds_url())
+    return utils.nocache_redirect(settings.get_latest_clouds_url())
 
 
 @app.route("/app/closest-cities")

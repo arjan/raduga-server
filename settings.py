@@ -14,15 +14,11 @@ SERVER_NAME = '127.0.0.1:5000'
 WEATHER RESOURCES SETTINGS
 """
 
-ZOOM_LEVEL = z = 4
+def relative_folder(*parts):
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), *parts)
 
-STATIC_FOLDER           = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
-GFS_FOLDER              = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'gfs')
-PHOTO_FOLDER            = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'photos')
-ELEKTRO_L_FOLDER        = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'elektro')
-ELEKTRO_L_SRC_FOLDER    = os.path.join(ELEKTRO_L_FOLDER, 'src')
 
-BOUNDS = [[41.196091, 19.62726], [81.851929, 191.010254]]
+GFS_FOLDER = relative_folder('static', 'gfs')
 
 
 # This is to find the latest folder of the form 2014022100
@@ -70,12 +66,6 @@ def get_latest_clouds_url():
 def get_latest_rainbow_cities_url():
     slug = get_forecast_info()[-1]['slug']
     return "/static/gfs/" + slug + "/" + slug + ".rainbow_cities.json"
-
-
-def get_latest_elektro_l_url():
-    global ELEKTRO_L_FOLDER
-    for f in sorted(os.listdir(ELEKTRO_L_FOLDER), reverse=True):
-        return "/static/elektro/" + f
 
 
 LATEST_GFS_FOLDER, LATEST_GFS_SLUG = get_latest_gfs_folder()
