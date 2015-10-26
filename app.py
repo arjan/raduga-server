@@ -3,15 +3,16 @@
 # Python Standard Library 
 import os
 from datetime import datetime
-
-# Dependencies: Flask + PIL or Pillow
-from flask import Flask, send_from_directory, redirect as redirect_flask, render_template, request, Response
 from functools import wraps
 
+# Dependencies: Flask + PIL or Pillow
+from flask import Flask, send_from_directory, redirect as redirect_flask, render_template, request, Response, jsonify
 import pymongo
 
 # Local imports
 from settings import *
+from data.cities import data as cities
+import geo
 
 app = Flask(__name__)
 
@@ -54,12 +55,6 @@ def redirect(uri):
     return response
 
 
-# These static files should be served by the web server
-@app.route('/tiles/<path:filename>')
-def base_static(filename):
-    return send_from_directory(os.path.join(app.root_path, 'raduga_tiles'), filename)
-
-
 @app.route('/')
 def index():
     return redirect('/hq/')
@@ -73,6 +68,16 @@ def latest_rainbows():
 @app.route("/latest/clouds.json")
 def latest_clouds():
     return redirect(get_latest_clouds_url())
+
+
+@app.route("/app/closest-cities")
+def get_closest_cities():
+    lat, lon = float(request.args.get('lat', 0)), float(request.args.get('lon', 0))
+    if lat == 0 or lon == 0:
+        raise RuntimeError("Invalid request")
+    c = sorted(cities, key=lambda c: (c['lat']-lat)*(c['lat']-lat) + (c['lon']-lon)*(c['lon']-lon))
+    c = [dict(x, distance=geo.geo_distance(lat, lon, x['lat'], x['lon'])) for x in c[:int(request.args.get('limit', 5))]]
+    return jsonify(dict(cities=c))
 
 
 @app.route("/latest/rainbow_cities.json")
