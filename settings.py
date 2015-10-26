@@ -67,6 +67,10 @@ def get_latest_rainbow_cities_url():
     slug = get_forecast_info()[-1]['slug']
     return "/static/gfs/" + slug + "/" + slug + ".rainbow_cities.json"
 
+def get_latest_clouds_alpha_url():
+    slug = get_forecast_info()[-1]['slug']
+    return "/static/gfs/{}/GFS_half_degree.clouds_alpha.{}.pwat.png".format(slug, slug)
+
 
 LATEST_GFS_FOLDER, LATEST_GFS_SLUG = get_latest_gfs_folder()
 

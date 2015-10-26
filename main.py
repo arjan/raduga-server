@@ -38,6 +38,12 @@ def get_rainbow_cities():
     return jsonify(dict(cities=json.loads(open(path).read())))
 
 
+@app.route("/latest/clouds.png")
+@cache.cached(timeout=60)
+def get_clouds_png():
+    return utils.nocache_redirect(settings.get_latest_clouds_alpha_url())
+
+
 @app.route("/app/closest-cities")
 def get_closest_cities():
     lat, lon = float(request.args.get('lat', 0)), float(request.args.get('lon', 0))
