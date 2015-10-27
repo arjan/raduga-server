@@ -42,7 +42,7 @@ def _push(message, channels):
 
 def send_push(city):
     message = "High chance on rainbows near {}".format(city['name_en'])    
-    channels = ['all_cities', utils.city_id(city)] + [utils.city_id(n) for n in city['nearby']]
+    channels = [utils.city_id(city)] + [utils.city_id(n) for n in city['nearby']]
     logger.debug("Sending pushes for city: {} to channels: {}".format(city['name_en'], channels))
     _push(message, channels)
 
@@ -77,8 +77,11 @@ def find_rainbow_cities(GFS_SLUG):
             rainbow_cities.append(city)
 
     if len(rainbow_cities) > 0:
-        logger.debug((u"found rainbow cities: %s" % u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')))
+        names = u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')
+        logger.debug(u"Found rainbow cities: %s" % names)
         [send_push(c)  for c in rainbow_cities]
+        _push(u"Rainbow cities: %s" % names, ["debug"])
+
     else:
         logger.debug("no rainbow cities found")
 
@@ -92,7 +95,6 @@ if __name__ == '__main__':
         path = os.path.join(settings.GFS_FOLDER, slug)
         if re.match(r'\d{10}', slug) and os.path.isdir(path):
             if len(glob(os.path.join(path, '*rainbow_cities.json'))) > 0:
-                print(path)
                 logger.debug("encountered already processed rainbow-forecast %s, stop searching for rainbow-forecasts" % slug)
                 break
             if len(glob(os.path.join(path, '*pwat.grib'))) > 0:
