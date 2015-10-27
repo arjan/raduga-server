@@ -6,3 +6,6 @@ TEST_USER = "abc123abc123"
 
 # The password for the hq web interface
 HQ_PASSWORD = 'admin'
+
+PARSE_APPLICATION_ID = "q23r432423423423423"
+PARSE_REST_API_KEY = "w309r82309i09238r40wpod"

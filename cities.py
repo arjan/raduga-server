@@ -13,6 +13,7 @@ import re
 import os
 import json
 import codecs
+import http.client
 
 from glob import glob
 from PIL import Image
@@ -22,6 +23,28 @@ from geo import position_to_point
 import utils
 
 logger = utils.install_logger()
+
+
+def _push(message, channels):
+    connection = http.client.HTTPSConnection('api.parse.com', 443)
+    connection.connect()
+    connection.request('POST', '/1/push', json.dumps({
+        "channels": channels,
+        "data": {"alert": message}}),
+        {
+            "X-Parse-Application-Id": settings.PARSE_APPLICATION_ID,
+            "X-Parse-REST-API-Key": settings.PARSE_REST_API_KEY,
+            "Content-Type": "application/json"
+        })
+    r = connection.getresponse().read().decode("utf-8")
+    logger.debug("Push result: {}".format(r))
+    
+
+def send_push(city):
+    message = "High chance on rainbows near {}".format(city['name_en'])    
+    channels = [utils.city_id(city)] + [utils.city_id(n) for n in city['nearby']]
+    logger.debug("Sending pushes for city: {} to channels: {}".format(city['name_en'], channels))
+    _push(message, channels)
 
 
 def find_rainbow_cities(GFS_SLUG):
@@ -54,9 +77,8 @@ def find_rainbow_cities(GFS_SLUG):
             rainbow_cities.append(city)
 
     if len(rainbow_cities) > 0:
-        logger.debug(
-                     (u"found rainbow cities: %s" % u', '.join(city['name_ru'] + '/' + city['name_en'] for city in rainbow_cities)).encode('utf8')
-                     )
+        logger.debug((u"found rainbow cities: %s" % u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')))
+        [send_push(c)  for c in rainbow_cities]
     else:
         logger.debug("no rainbow cities found")
 
@@ -70,6 +92,7 @@ if __name__ == '__main__':
         path = os.path.join(settings.GFS_FOLDER, slug)
         if re.match(r'\d{10}', slug) and os.path.isdir(path):
             if len(glob(os.path.join(path, '*rainbow_cities.json'))) > 0:
+                print(path)
                 logger.debug("encountered already processed rainbow-forecast %s, stop searching for rainbow-forecasts" % slug)
                 break
             if len(glob(os.path.join(path, '*pwat.grib'))) > 0:

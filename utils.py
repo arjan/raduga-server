@@ -19,6 +19,7 @@ See LICENSE info below.
 
 import flask
 
+import re
 import sys
 import logging
 import getpass
@@ -128,3 +129,9 @@ def nocache_redirect(uri):
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '-1'
     return response
+
+
+def city_id(city):
+    if type(city) is dict:
+        city = city['name_en']
+    return re.sub("[^a-z]", "", city.lower())

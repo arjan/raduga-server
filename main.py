@@ -58,7 +58,7 @@ def get_closest_cities():
     if lat == 0 or lon == 0:
         raise RuntimeError("Invalid request")
     c = sorted(cities, key=lambda c: (c['lat']-lat)*(c['lat']-lat) + (c['lon']-lon)*(c['lon']-lon))
-    c = [dict(x, id=re.sub("[^a-z]", "", x['name_en'].lower()), distance=geo.geo_distance(lat, lon, x['lat'], x['lon'])) for x in c[:int(request.args.get('limit', 5))]]
+    c = [dict(x, id=utils.city_id(x), distance=geo.geo_distance(lat, lon, x['lat'], x['lon'])) for x in c[:int(request.args.get('limit', 5))]]
     c = [x for x in c if x['distance'] < 100]
     return jsonify(dict(cities=c))
 
