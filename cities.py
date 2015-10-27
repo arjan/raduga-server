@@ -42,7 +42,7 @@ def _push(message, channels):
 
 def send_push(city):
     message = "High chance on rainbows near {}".format(city['name_en'])    
-    channels = [utils.city_id(city)] + [utils.city_id(n) for n in city['nearby']]
+    channels = ['all_cities', utils.city_id(city)] + [utils.city_id(n) for n in city['nearby']]
     logger.debug("Sending pushes for city: {} to channels: {}".format(city['name_en'], channels))
     _push(message, channels)
 

@@ -16,3 +16,7 @@ TEST_USER = "abc123abc123"
 
 # The password for the hq web interface
 HQ_PASSWORD = 'rdg1044'
+
+# Parse.com credentials
+PARSE_APPLICATION_ID = "GgrCs3g29qpsqUdcO5hoieEtdtKzonD5p93bxn37"
+PARSE_REST_API_KEY = "yIIuVtW4I36HusMfr3B61VziDZt3q9DnXjmwETK8"
