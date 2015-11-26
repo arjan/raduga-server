@@ -39,7 +39,7 @@
   - authorized_key: user=raduga key="{{ lookup('file', '/home/arjan/.ssh/id_rsa.pub') }}"
 
   - name: Checkout the backend repo
-    git: repo=https://github.com/arjan/raduga-server.git dest={{ backend }} version=python3 accept_hostkey=True
+    git: repo=https://github.com/arjan/raduga-server.git dest={{ backend }} version=master accept_hostkey=True
     sudo: yes
     sudo_user: raduga
     notify: update supervisor
