@@ -7,8 +7,11 @@
 
   tasks:
 
+  - name: Add thumbor ppa
+    apt_repository: repo='deb http://ppa.launchpad.net/thumbor/ppa/ubuntu saucy main'
+    
   - name: Install required packages
-    apt: pkg={{ item }} state=installed
+    apt: pkg={{ item }} state=installed update_cache=yes
     with_items:
     - python3
     - python3-dev
@@ -26,6 +29,7 @@
     - potrace
     - supervisor
     - nginx
+    - thumbor
 
   - name: Create thumbor working dir
     file: path={{ thumbor_working_directory }} state=directory owner=raduga group=raduga mode=0755
@@ -83,7 +87,7 @@
     cron: name=cleanup minute="0" job="{{ backend }}/cleanup.sh"
     sudo: yes
     sudo_user: raduga
-    
+
   - name: Install supervisor job
     copy: src=files/server.conf dest=/etc/supervisor/conf.d/
     notify: update supervisor
@@ -92,18 +96,15 @@
     copy: src=files/nginx.conf dest=/etc/nginx/sites-enabled/01raduga
     notify: reload nginx
 
-  - name: copy thumbor conf default
+  - name: copy thumbor conf
     template: >
       src=templates/thumbor.conf.j2
       dest=/etc/thumbor.conf
       owner=raduga
       group=raduga
       mode=0755
+    notify: reload thumbor
 
-  - name: Install thumbor supervisor job
-    copy: src=files/thumbor-supervisor.conf dest=/etc/supervisor/conf.d/
-    notify: update supervisor
-    
   handlers:
     - name: update timezone
       command: dpkg-reconfigure --frontend noninteractive tzdata
@@ -113,3 +114,6 @@
 
     - name: reload nginx
       service: name=nginx state=restarted
+
+    - name: reload thumbor
+      service: name=thumbor state=restarted
