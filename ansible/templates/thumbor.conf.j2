@@ -1,0 +1,11 @@
+FILE_LOADER_ROOT_PATH = '{{ upload_folder }}'
+FILE_STORAGE_ROOT_PATH = '{{ thumbor_working_directory }}/files'
+LOADER = 'thumbor.loaders.file_loader'
+RESULT_STORAGE = 'thumbor.result_storages.file_storage'
+RESPECT_ORIENTATION = True
+AUTO_WEBP = True
+RESULT_STORAGE_FILE_STORAGE_ROOT_PATH = '{{ thumbor_working_directory }}/resized'
+RESULT_STORAGE_STORES_UNSAFE = True
+
+MAX_WIDTH = 1200
+MAX_HEIGHT = 1200

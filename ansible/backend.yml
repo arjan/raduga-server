@@ -2,11 +2,13 @@
 - hosts: backend
   vars:
     backend: /home/raduga/raduga-server
-    
+    upload_folder: /home/raduga/photos
+    thumbor_working_directory: /home/raduga/thumbor
+
   tasks:
 
   - name: Install required packages
-    apt: pkg={{ item }} state=installed update_cache=yes
+    apt: pkg={{ item }} state=installed
     with_items:
     - python3
     - python3-dev
@@ -25,6 +27,12 @@
     - supervisor
     - nginx
 
+  - name: Create thumbor working dir
+    file: path={{ thumbor_working_directory }} state=directory owner=raduga group=raduga mode=0755
+
+  - name: Create upload folder
+    file: path={{ upload_folder }} state=directory owner=raduga group=raduga mode=0755
+    
   - name: Set Time Zone
     copy: src=files/timezone dest=/etc/timezone owner=root group=root mode=0644 
     notify:
@@ -84,6 +92,18 @@
     copy: src=files/nginx.conf dest=/etc/nginx/sites-enabled/01raduga
     notify: reload nginx
 
+  - name: copy thumbor conf default
+    template: >
+      src=templates/thumbor.conf.j2
+      dest=/etc/thumbor.conf
+      owner=raduga
+      group=raduga
+      mode=0755
+
+  - name: Install thumbor supervisor job
+    copy: src=files/thumbor-supervisor.conf dest=/etc/supervisor/conf.d/
+    notify: update supervisor
+    
   handlers:
     - name: update timezone
       command: dpkg-reconfigure --frontend noninteractive tzdata
