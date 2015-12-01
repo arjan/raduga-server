@@ -2,10 +2,13 @@
 
 import json
 import os
-import re
+import pymongo
+import time
+import datetime
 
 # Dependencies: Flask + PIL or Pillow
-from flask import request, jsonify
+from flask import request, jsonify, abort
+from werkzeug import secure_filename
 
 # Local imports
 import settings
@@ -45,6 +48,35 @@ def register_user(id):
     db.users.update({'id': id}, user_data, True)
     return jsonify(dict(result="ok"))
 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ['jpg', 'png', 'jpeg']
+   
+
+@app.route("/app/user/<string:user_id>/photo", methods=['POST'])
+def photo_upload(user_id):
+    user = db.users.find_one({'id': user_id})
+    if user is None:
+        abort(403)
+    file = request.files['file']
+    if not file or not allowed_file(file.filename):
+        abort(400)
+    file_id = "%s_%s" % (user_id, int(time.time()))
+    filename = "%s_%s" % (file_id, secure_filename(file.filename))
+    file.save(os.path.join(settings.UPLOAD_FOLDER, filename))
+    doc = {'id': file_id, 'filename': filename, 'user_id': user_id, 'created': datetime.datetime.now()}
+    db.photos.insert(doc)
+    return jsonify(dict(result="ok"))
+
+@app.route("/app/user/<string:user_id>/photos", methods=['GET'])
+def photos(user_id):
+    user = db.users.find_one({'id': user_id})
+    if user is None:
+        abort(403)
+    photos = db.photos.find({'user_id': user_id}).sort('created', pymongo.DESCENDING)
+    photos = [dict(created=p['created'], filename=p['filename'], id=p['id']) for p in photos]
+    return jsonify(dict(photos=photos))
 
 @app.route("/latest/clouds.png")
 @cache.cached(timeout=60)

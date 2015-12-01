@@ -1,2 +1,2 @@
-import json
-data = json.loads(open(__file__.replace('.py', '.json')).read())
+import json, re
+data = json.loads(open(re.sub("\..*?$", ".json", __file__)).read())
