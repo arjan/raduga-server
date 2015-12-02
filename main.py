@@ -52,7 +52,13 @@ def register_user(id):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ['jpg', 'png', 'jpeg']
-   
+
+def resize(src_file, width):
+    base, ext = os.path.basename(src_file).split(".", 2)
+    target_file = os.path.join(os.path.dirname(src_file), "%s_%dw.%s" % (base, width, ext))
+    cmd = "convert '%s' -auto-orient -resize %dx '%s'" % (src_file, width, target_file)
+    os.system(cmd)
+    return os.path.basename(target_file)
 
 @app.route("/app/user/<string:user_id>/photo", methods=['POST'])
 def photo_upload(user_id):
@@ -63,11 +69,14 @@ def photo_upload(user_id):
     if not file or not allowed_file(file.filename):
         abort(400)
     file_id = "%s_%s" % (user_id, int(time.time()))
-    filename = "%s_%s" % (file_id, secure_filename(file.filename))
-    file.save(os.path.join(settings.UPLOAD_FOLDER, filename))
-    doc = {'id': file_id, 'filename': filename, 'user_id': user_id, 'created': datetime.datetime.now()}
+    src_file = os.path.join(settings.UPLOAD_FOLDER, "%s_%s" % (file_id, secure_filename(file.filename)))
+    file.save(src_file)
+    variants = dict([(str(w), resize(src_file, w)) for w in (200, 400, 800)])
+    doc = dict(id=file_id, filename=os.path.basename(src_file), user_id=user_id, created=datetime.datetime.now(), variants=variants)
     db.photos.insert(doc)
-    return jsonify(dict(result="ok"))
+    d = dict(doc)
+    del d['_id']
+    return jsonify(d)
 
 @app.route("/app/user/<string:user_id>/photos", methods=['GET'])
 def photos(user_id):

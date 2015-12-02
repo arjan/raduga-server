@@ -27,13 +27,16 @@ class APITestCase(unittest.TestCase):
         assert rv.status_code == 403
 
         # upload photo
-        rv = self.app.post('/app/user/test1/photo', data = {'file': (StringIO('my file contents'), 'hello world.png')})
-        print rv
-
+        fp = open(os.path.join(os.path.dirname(__file__), "test.png"), "r")
+        rv = self.app.post('/app/user/test1/photo', data={'testkey': 'testvalue', 'file': (fp, 'test.png')})
+        assert rv.status_code == 200
+        
         # get photos
         rv = self.app.get('/app/user/test1/photos')
         photos = json.loads(rv.data)
         assert len(photos['photos']) > 1
+        print(photos)
+
         
 
 if __name__ == '__main__':
