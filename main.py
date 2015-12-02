@@ -19,6 +19,8 @@ import utils
 from app import app, cache, db
 from data.cities import data as cities
 
+logger = utils.install_logger()
+
 
 @app.route("/latest/rainbow_cities.json")
 def latest_rainbow_cities():
@@ -84,9 +86,10 @@ def photo_upload(user_id):
     doc = dict(id=file_id,
                filename=os.path.basename(src_file),
                user_id=user_id,
-               meta=request.args.get('meta', ''),
+               meta=request.values.get('meta', ''),
                created=datetime.datetime.now(),
                variants=variants)
+    logger.debug("Photo upload: {}".format(doc))
     db.photos.insert(doc)
     return jsonify(map_photo(doc))
 

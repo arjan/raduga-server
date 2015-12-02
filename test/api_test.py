@@ -28,7 +28,7 @@ class APITestCase(unittest.TestCase):
 
         # upload photo
         fp = open(os.path.join(os.path.dirname(__file__), "test.png"), "r")
-        rv = self.app.post('/app/user/test1/photo', data={'meta': 'testvalue', 'file': (fp, 'test.png')})
+        rv = self.app.post('/app/user/test1/photo', data={'meta': 'testvalue xxx', 'file': (fp, 'test.png')})
         assert rv.status_code == 200
         
         # get photos

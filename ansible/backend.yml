@@ -27,7 +27,7 @@
     - nginx
 
   - name: Create upload folder
-    file: path={{ upload_folder }} state=directory owner=raduga group=raduga mode=0755
+    file: path={{ upload_folder }} state=directory owner=www-data group=www-data mode=0755
     
   - name: Set Time Zone
     copy: src=files/timezone dest=/etc/timezone owner=root group=root mode=0644 
