@@ -60,6 +60,15 @@ def resize(src_file, width):
     os.system(cmd)
     return os.path.basename(target_file)
 
+
+def map_photo(p):
+    return dict(created=p['created'],
+                filename=p['filename'],
+                id=p['id'],
+                variants=p['variants'],
+                meta=p.get('meta', ''))
+
+
 @app.route("/app/user/<string:user_id>/photo", methods=['POST'])
 def photo_upload(user_id):
     user = db.users.find_one({'id': user_id})
@@ -72,20 +81,34 @@ def photo_upload(user_id):
     src_file = os.path.join(settings.UPLOAD_FOLDER, "%s_%s" % (file_id, secure_filename(file.filename)))
     file.save(src_file)
     variants = dict([(str(w), resize(src_file, w)) for w in (200, 400, 800)])
-    doc = dict(id=file_id, filename=os.path.basename(src_file), user_id=user_id, created=datetime.datetime.now(), variants=variants)
+    doc = dict(id=file_id,
+               filename=os.path.basename(src_file),
+               user_id=user_id,
+               meta=request.args.get('meta', ''),
+               created=datetime.datetime.now(),
+               variants=variants)
     db.photos.insert(doc)
-    d = dict(doc)
-    del d['_id']
-    return jsonify(d)
+    return jsonify(map_photo(doc))
+
 
 @app.route("/app/user/<string:user_id>/photos", methods=['GET'])
-def photos(user_id):
+def user_photos(user_id):
+    limit = int(request.args.get('limit', 20))
+    skip = int(request.args.get('skip', 0))
     user = db.users.find_one({'id': user_id})
     if user is None:
         abort(403)
-    photos = db.photos.find({'user_id': user_id}).sort('created', pymongo.DESCENDING)
-    photos = [dict(created=p['created'], filename=p['filename'], id=p['id']) for p in photos]
-    return jsonify(dict(photos=photos))
+    photos = db.photos.find({'user_id': user_id}).sort('created', pymongo.DESCENDING).limit(limit).skip(skip)
+    return jsonify(dict(photos=[map_photo(p) for p in photos]))
+
+
+@app.route("/app/photos", methods=['GET'])
+def all_photos():
+    limit = int(request.args.get('limit', 20))
+    skip = int(request.args.get('skip', 0))
+    photos = db.photos.find().sort('created', pymongo.DESCENDING).limit(limit).skip(skip)
+    return jsonify(dict(photos=[map_photo(p) for p in photos]))
+
 
 @app.route("/latest/clouds.png")
 @cache.cached(timeout=60)
