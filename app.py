@@ -6,11 +6,10 @@ from flask.ext.cache import Cache
 from flask.ext.cors import CORS
 
 import pymongo
-import logging
 
 app = Flask(__name__)
 
-print app.logger.setLevel(logging.DEBUG)
+# app.logger.setLevel(logging.DEBUG)
 
 cors = CORS(app)
 
