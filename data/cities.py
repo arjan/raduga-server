@@ -1,2 +1,2 @@
-import json, re
-data = json.loads(open(re.sub("\..*?$", ".json", __file__)).read())
+import json, os
+data = json.loads(open(os.path.join(os.path.dirname(__file__), "cities.json")).read())
