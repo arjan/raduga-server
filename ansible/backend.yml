@@ -2,7 +2,7 @@
 - hosts: backend
   vars:
     backend: /home/raduga/raduga-server
-    upload_folder: /home/raduga/photos
+    upload_folder: /home/raduga/photos/
 
   tasks:
 

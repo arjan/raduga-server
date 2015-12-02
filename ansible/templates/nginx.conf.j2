@@ -2,8 +2,9 @@ server {
     listen 80;
     server_name raduga.miraclethings.nl;
 
-    location /photos {
-        root {{ upload_folder }};
+    location /photos/ {
+        alias {{ upload_folder }};
+        autoindex off;
     }
 
     location / {
