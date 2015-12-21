@@ -15,7 +15,6 @@ backports.ssl-match-hostname==3.4.0.2
 certifi==2015.11.20.1
 derpconf==0.7.3
 futures==3.0.3
-http==0.02
 itsdangerous==0.24
 libthumbor==1.2.0
 pexif==0.15
