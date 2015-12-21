@@ -29,7 +29,7 @@ def _push(message, channels):
     connection = http.client.HTTPSConnection('api.parse.com', 443)
     connection.connect()
     connection.request('POST', '/1/push', json.dumps({
-        "channels": channels,
+        "channels": channels.encode('utf-8'),
         "data": {"alert": message}}),
         {
             "X-Parse-Application-Id": settings.PARSE_APPLICATION_ID,
@@ -41,13 +41,13 @@ def _push(message, channels):
     
 
 def send_push(city):
-    logger.debug('send push ' + city['name_en'])
-    messages = {"en": "High chance on rainbows near {}",
-                "ru": "Высокая вероятность на радугу в районе {}"}
+    logger.debug(u'send push {}'.format(city['name_en']).encode('utf-8'))
+    messages = {"en": u"High chance on rainbows near {}",
+                "ru": u"Высокая вероятность на радугу в районе {}"}
     for lang, message in messages.iteritems():
         pf = "-" + lang
         channels = [utils.city_id(city)+pf] + [utils.city_id(n)+pf for n in city['nearby']]
-        logger.debug("Sending pushes for city: {} to channels: {}".format(city['name_'+lang], channels))
+        logger.debug(u"Sending pushes for city: {} to channels: {}".format(city['name_'+lang], channels).encode('utf-8'))
         _push(message.format(city['name_'+lang]), channels)
 
 
