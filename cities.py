@@ -82,11 +82,12 @@ def find_rainbow_cities(GFS_SLUG):
         [send_push(c) for c in rainbow_cities]
         _push(u"Rainbow cities: %s" % names, ["debug"])
 
+        with codecs.open(rainbow_cities_json_path, 'w', 'utf8') as f:
+            f.write(json.dumps(rainbow_cities, indent=4, ensure_ascii=False))
+        
     else:
         logger.debug("no rainbow cities found")
 
-    with codecs.open(rainbow_cities_json_path, 'w', 'utf8') as f:
-        f.write(json.dumps(rainbow_cities, indent=4, ensure_ascii=False))
 
 
 def test_notifications():
