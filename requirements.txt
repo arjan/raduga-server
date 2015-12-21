@@ -31,4 +31,3 @@ singledispatch==3.4.0.3
 six==1.10.0
 statsd==3.2.1
 uWSGI==2.0.11.2
-wsgiref==0.1.2

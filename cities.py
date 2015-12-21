@@ -95,9 +95,10 @@ def test_notifications():
     #send_push(city)
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'test-notifications':
+    if len(sys.argv) > 1 and sys.argv[1] == 'test-notifications':
         test_notifications()
         exit(0)
+
     logger.debug('looking for rainbow-forecasts for which to find cities')
     for f in sorted(os.listdir(settings.GFS_FOLDER), reverse=True):
         slug = f
