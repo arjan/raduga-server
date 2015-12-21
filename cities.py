@@ -41,6 +41,7 @@ def _push(message, channels):
     
 
 def send_push(city):
+    logger.debug('send push ' + city['name_en'])
     messages = {"en": "High chance on rainbows near {}",
                 "ru": "Высокая вероятность на радугу в районе {}"}
     for lang, message in messages.iteritems():
@@ -82,7 +83,7 @@ def find_rainbow_cities(GFS_SLUG):
     if len(rainbow_cities) > 0:
         names = u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')
         logger.debug(u"Found rainbow cities: %s" % names)
-        [send_push(c)  for c in rainbow_cities]
+        [send_push(c) for c in rainbow_cities]
         _push(u"Rainbow cities: %s" % names, ["debug"])
 
     else:
