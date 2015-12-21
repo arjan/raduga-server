@@ -57,6 +57,10 @@ def get_latest_rainbow_cities():
             break
     return jsonify(dict(cities=result, date=date))
 
+@app.route("/app/tmp")
+def tmp():
+    list = sorted(glob.glob(settings.GFS_FOLDER + "/*/*rainbow_cities.json"))[::-1]
+    return jsonify(result=list)
 
 @app.route("/app/user/<string:id>", methods=['POST'])
 def register_user(id):
