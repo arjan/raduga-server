@@ -46,7 +46,7 @@ def build():
     @app.route("/hq/")
     @requires_auth
     def hq():
-        logs = db.log.find(limit=100).sort("$natural", pymongo.DESCENDING)
+        logs = db.log.find(limit=500).sort("$natural", pymongo.DESCENDING)
         forecasts = settings.get_forecast_info()
         gfs = sorted(os.listdir(settings.GFS_FOLDER))
         return render_template("hq.html", logs=logs, forecasts=forecasts, gfs=gfs)
