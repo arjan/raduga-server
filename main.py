@@ -5,6 +5,7 @@ import os
 import pymongo
 import time
 import datetime
+import glob
 
 # Dependencies: Flask + PIL or Pillow
 from flask import request, jsonify, abort
@@ -37,11 +38,24 @@ def latest_clouds():
     return utils.nocache_redirect(settings.get_latest_clouds_url())
 
 
-@app.route("/app/rainbow-cities")
+@app.route("/app/old-rainbow-cities")
 @cache.cached(timeout=60)
 def get_rainbow_cities():
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), settings.get_latest_rainbow_cities_url()[1:]))
     return jsonify(dict(cities=json.loads(open(path).read())))
+
+@app.route("/app/rainbow-cities")
+@cache.cached(timeout=60)
+def get_latest_rainbow_cities():
+    list = sorted(glob.glob(settings.GFS_FOLDER + "/*/*rainbow_cities.json"))[::-1]
+    result = []
+    date = None
+    for f in list:
+        if os.stat(f).st_size > 2:
+            result = json.loads(open(f).read())
+            date = datetime.datetime(*time.strptime(os.path.basename(f).split(".")[0], '%Y%m%d%H')[0:6]).isoformat()
+            break
+    return jsonify(dict(cities=result, date=date))
 
 
 @app.route("/app/user/<string:id>", methods=['POST'])
