@@ -6,6 +6,7 @@ import pymongo
 import time
 import datetime
 import glob
+import requests
 
 # Dependencies: Flask + PIL or Pillow
 from flask import request, jsonify, abort
@@ -103,10 +104,21 @@ def photo_upload(user_id):
     src_file = os.path.join(settings.UPLOAD_FOLDER, "%s_%s" % (file_id, secure_filename(file.filename)))
     file.save(src_file)
     variants = dict([(str(w), resize(src_file, w)) for w in (200, 400, 800)])
+
+    meta = request.values.get('meta', '')
+    mm = json.loads(meta)
+    if 'lat' in mm:
+        geo = 'http://maps.google.com/maps/api/geocode/json'
+        params = {'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
+        r = requests.get(geo, params)
+        c = json.loads(r.text)['results'][0]
+        mm['geocode'] = c
+        meta = json.dumps(mm)
+
     doc = dict(id=file_id,
                filename=os.path.basename(src_file),
                user_id=user_id,
-               meta=request.values.get('meta', ''),
+               meta=meta,
                created=datetime.datetime.now(),
                variants=variants)
     logger.debug("Photo upload: {}".format(doc))
