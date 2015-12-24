@@ -34,7 +34,7 @@ def _push(message, channels):
                "Content-Type": "application/json"}
     r = s.post('https://api.parse.com/1/push', data=data, headers=headers)
     logger.debug("Push result: {}".format(r.text))
-    
+
 
 def send_push(city):
     logger.debug(u'send push {}'.format(city['name_en']).encode('utf8'))
@@ -82,9 +82,13 @@ def find_rainbow_cities(GFS_SLUG):
         [send_push(c) for c in rainbow_cities]
         _push(u"Rainbow cities: %s" % names, ["debug"])
 
-        with codecs.open(rainbow_cities_json_path, 'w', 'utf8') as f:
-            f.write(json.dumps(rainbow_cities, indent=4, ensure_ascii=False))
-        
+        logger.debug(u"Wrote: %s" % rainbow_cities_json_path)
+        files = [os.path.join(settings.GFS_FOLDER, "rainbow_cities.json"), rainbow_cities_json_path]
+        for fn in files:
+            with codecs.open(fn, 'w', 'utf8') as f:
+                f.write(json.dumps(rainbow_cities, indent=4, ensure_ascii=False))
+            logger.debug(u"Wrote {}".format(fn))
+
     else:
         logger.debug("no rainbow cities found")
 
