@@ -28,7 +28,7 @@ logger = utils.install_logger()
 s = requests.Session()
 
 def _push(message, channels):
-    data = json.dumps({"channels": channels, "data": {"alert": message.encode('utf8')}})
+    data = json.dumps({"channels": channels, "data": {"alert": message}})
     headers = {"X-Parse-Application-Id": settings.PARSE_APPLICATION_ID,
                "X-Parse-REST-API-Key": settings.PARSE_REST_API_KEY,
                "Content-Type": "application/json"}
