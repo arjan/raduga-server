@@ -119,7 +119,7 @@ def photo_upload(user_id):
                filename=os.path.basename(src_file),
                user_id=user_id,
                meta=meta,
-               created=datetime.datetime.now(),
+               created=datetime.datetime.utcnow(),
                variants=variants)
     logger.debug("Photo upload: {}".format(doc))
     db.photos.insert(doc)
