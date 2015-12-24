@@ -40,7 +40,7 @@ def send_push(city):
     logger.debug(u'send push {}'.format(city['name_en']).encode('utf8'))
     messages = {"en": u"High chance on rainbows near {}",
                 "ru": u"Высокая вероятность на радугу в районе {}"}
-    for lang, message in messages.iteritems():
+    for lang, message in messages.items():
         pf = "-" + lang
         channels = [utils.city_id(city)+pf] + [utils.city_id(n)+pf for n in city['nearby']]
         logger.debug(u"Sending pushes for city: {} to channels: {}".format(city['name_'+lang], channels).encode('utf8'))
