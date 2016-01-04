@@ -63,6 +63,7 @@ def find_rainbow_cities(GFS_SLUG):
     access = image.load()
 
     rainbow_cities_json_path = os.path.join(CURRENT_GFS_FOLDER, "%s.rainbow_cities.json" % GFS_SLUG)
+    processed_path = os.path.join(CURRENT_GFS_FOLDER, "PROCESSED")
 
     rainbow_cities = []
 
@@ -92,6 +93,9 @@ def find_rainbow_cities(GFS_SLUG):
     else:
         logger.debug("no rainbow cities found")
 
+    with codecs.open(processed_path, 'w', 'utf8') as f:
+        f.write('processed')
+
 
 
 def test_notifications():
@@ -109,8 +113,8 @@ if __name__ == '__main__':
         slug = f
         path = os.path.join(settings.GFS_FOLDER, slug)
         if re.match(r'\d{10}', slug) and os.path.isdir(path):
-            if len(glob(os.path.join(path, '*rainbow_cities.json'))) > 0:
-                logger.debug("encountered already processed rainbow-forecast %s, stop searching for rainbow-forecasts" % slug)
+            if len(glob(os.path.join(path, 'PROCESSED'))) > 0:
+                logger.debug("encountered already processed folder %s, stop searching for rainbow-forecasts" % slug)
                 break
             if len(glob(os.path.join(path, '*pwat.grib'))) > 0:
                 logger.debug("encountered cityless rainbow-forecast %s, start processing" % slug)
