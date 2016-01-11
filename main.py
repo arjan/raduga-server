@@ -153,7 +153,7 @@ def get_clouds_png():
 
 @app.route("/app/report/<string:photo_id>", methods=['POST'])
 def report_photo(photo_id):
-    reason = request.args.get('reason', "")
+    reason = request.get_json().get('reason', "")
     db.reports.insert(dict(photo_id=photo_id, reason=reason, created=datetime.datetime.utcnow()))
     logger.debug("Photo reported: {} / {}".format(photo_id, reason))
     return jsonify(dict(result="ok"))
