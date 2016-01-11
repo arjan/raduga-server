@@ -151,6 +151,14 @@ def get_clouds_png():
     return utils.nocache_redirect(settings.get_latest_clouds_alpha_url())
 
 
+@app.route("/app/report/<string:photo_id>", methods=['POST'])
+def report_photo(photo_id):
+    reason = request.args.get('reason', "")
+    db.reports.insert(dict(photo_id=photo_id, reason=reason, created=datetime.datetime.utcnow()))
+    logger.debug("Photo reported: {} / {}".format(photo_id, reason))
+    return jsonify(dict(result="ok"))
+    
+
 @app.route("/app/closest-cities")
 def get_closest_cities():
     lat, lon = float(request.args.get('lat', 0)), float(request.args.get('lon', 0))
