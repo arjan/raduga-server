@@ -1,4 +1,5 @@
 import os
+import json
 from functools import wraps
 from flask import Flask, send_from_directory, redirect, render_template, request, Response, jsonify
 import pymongo
@@ -58,4 +59,8 @@ def build():
         for r in reports:
             photo = lookup.get(r['photo_id'], None)
             r['photo'] = photo
+            try:
+                r['city'] = json.loads(photo['meta'])['formatted_address']
+            except:
+                r['city'] = 'Unknown'
         return render_template("moderate.html", reports=reports)
