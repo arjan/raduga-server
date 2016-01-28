@@ -7,6 +7,7 @@
 
 <div class="reports">
     {% for r in reports %}
+    {% if r.photo %}
     <div class="report">
         <span class="">{{ r.created.strftime('%Y-%m-%dT%H:%M:%S%z') }}</span><br>
 
@@ -16,6 +17,7 @@
         <p>Reason: {{ r.reason }}</p>
         <button>Remove photo</button> <button>Block user</button> <button>Dismiss</button>
     </div>
+    {% endif %}
     {% endfor %}
 </div>
 

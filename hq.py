@@ -56,5 +56,6 @@ def build():
         photos = list(db.photos.find({'id': {'$in': [r['photo_id'] for r in reports]}}))
         lookup = dict([ (p['id'], p) for p in photos])
         for r in reports:
-            r['photo'] = lookup[r['photo_id']]
+            photo = lookup.get([r['photo_id']], None)
+            r['photo'] = photo
         return render_template("moderate.html", reports=reports)
