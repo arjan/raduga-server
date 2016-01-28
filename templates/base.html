@@ -11,14 +11,14 @@
 </head>
 
 <body>
-    <h1>Raduga HQ</h1>
+    <h1>Raduga HQ: {% block title %}{% endblock %}</h1>
 
     {% block content %}
     {% endblock %}
 
     <script>
         // relative time
-        $("td.time, dt.time").each(function(i, el) {
+        $("td.time, dt.time, .time").each(function(i, el) {
         $(el).text(moment($(el).attr("content")).fromNow());
         });
     </script>

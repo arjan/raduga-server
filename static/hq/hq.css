@@ -33,3 +33,15 @@ img.debug {
     margin: 10px 0;
     border: 1px dotted #999;
 }
+
+div.reports div.report {
+    margin: 10px 0;
+    padding: 5px 0;
+    border-bottom: 1px dotted #999;
+}
+div.reports p {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+

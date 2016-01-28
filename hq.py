@@ -36,12 +36,10 @@ def build():
     def index():
         return redirect('/hq/')
 
-
     @app.route("/hq/gfs/<string:slug>")
     @requires_auth
     def hq_slug(slug):
         return render_template("hq_slug.html", slug=slug)
-
 
     @app.route("/hq/")
     @requires_auth
@@ -50,3 +48,13 @@ def build():
         forecasts = settings.get_forecast_info()
         gfs = sorted(os.listdir(settings.GFS_FOLDER))
         return render_template("hq.html", logs=logs, forecasts=forecasts, gfs=gfs)
+
+    @app.route("/hq/moderate")
+    @requires_auth
+    def moderate():
+        reports = list(db.reports.find(limit=500).sort("$natural", pymongo.DESCENDING))
+        photos = list(db.photos.find({'id': {'$in': [r['photo_id'] for r in reports]}}))
+        lookup = dict([ (p['id'], p) for p in photos])
+        for r in reports:
+            r['photo'] = lookup[r['photo_id']]
+        return render_template("moderate.html", reports=reports)

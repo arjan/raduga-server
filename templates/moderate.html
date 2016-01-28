@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Photo moderation{% endblock %}
+
+{% block content %}
+<a href="/hq/">Back</a>
+
+<div class="reports">
+    {% for r in reports %}
+    <div class="report">
+        <span class="">{{ r.created.strftime('%Y-%m-%dT%H:%M:%S%z') }}</span><br>
+
+        <img src="/photos/{{ r.photo.variants['400'] }}" />
+        <br />
+        <span>{{ r.photo.meta }}</span>
+        <p>Reason: {{ r.reason }}</p>
+        <button>Remove photo</button> <button>Block user</button> <button>Dismiss</button>
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}
