@@ -60,7 +60,7 @@ def build():
             photo = lookup.get(r['photo_id'], None)
             r['photo'] = photo
             try:
-                r['city'] = json.loads(photo['meta'])['formatted_address']
+                r['city'] = json.loads(photo['meta'])['geocode']['formatted_address']
             except Exception as e:
                 print(e)
                 r['city'] = 'Unknown'
