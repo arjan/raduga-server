@@ -61,7 +61,7 @@ def build():
             r['photo'] = photo
             try:
                 r['city'] = json.loads(photo['meta'])['formatted_address']
-            except Exception, e:
+            except Exception as e:
                 print(e)
                 r['city'] = 'Unknown'
         return render_template("moderate.html", reports=reports)
