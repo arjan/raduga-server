@@ -58,6 +58,10 @@ def get_latest_rainbow_cities():
             break
     photos = [p for p in db.photos.find().sort('created', pymongo.DESCENDING).limit(1)]
     photo = len(photos) > 0 and map_photo(photos[0]) or None
+    d = datetime.datetime.utcnow() - photo['created']
+    print(d.days, d.seconds)
+    if d.days > 0 or d.seconds > 3600:
+        photo = None
     return jsonify(dict(cities=result, date=date, last_photo=photo))
 
 @app.route("/app/tmp")
