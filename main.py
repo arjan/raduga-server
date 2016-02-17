@@ -56,11 +56,16 @@ def get_latest_rainbow_cities():
             result = json.loads(open(f).read())
             date = datetime.datetime(*time.strptime(os.path.basename(f).split(".")[0], '%Y%m%d%H')[0:6]).isoformat()
             break
+
+    if date is not None:
+        d = datetime.datetime.utcnow() - date
+        if d.days > 0 or d.seconds > 1 * 3600:
+            result = []
+
     photos = [p for p in db.photos.find().sort('created', pymongo.DESCENDING).limit(1)]
     photo = len(photos) > 0 and map_photo(photos[0]) or None
     d = datetime.datetime.utcnow() - photo['created']
-    print(d.days, d.seconds)
-    if d.days > 0 or d.seconds > 3600:
+    if d.days > 0 or d.seconds > 4 * 3600:
         photo = None
     return jsonify(dict(cities=result, date=date, last_photo=photo))
 
@@ -161,7 +166,7 @@ def report_photo(photo_id):
     db.reports.insert(dict(photo_id=photo_id, reason=reason, created=datetime.datetime.utcnow()))
     logger.debug("Photo reported: {} / {}".format(photo_id, reason))
     return jsonify(dict(result="ok"))
-    
+
 
 @app.route("/app/closest-cities")
 def get_closest_cities():
