@@ -54,13 +54,14 @@ def get_latest_rainbow_cities():
     for f in list:
         if os.stat(f).st_size > 2:
             result = json.loads(open(f).read())
-            date = datetime.datetime(*time.strptime(os.path.basename(f).split(".")[0], '%Y%m%d%H')[0:6]).isoformat()
+            date = datetime.datetime(*time.strptime(os.path.basename(f).split(".")[0], '%Y%m%d%H')[0:6])
             break
 
     if date is not None:
         d = datetime.datetime.utcnow() - date
         if d.days > 0 or d.seconds > 1 * 3600:
             result = []
+        date = date.isoformat()
 
     photos = [p for p in db.photos.find().sort('created', pymongo.DESCENDING).limit(1)]
     photo = len(photos) > 0 and map_photo(photos[0]) or None
