@@ -123,7 +123,7 @@ if __name__ == '__main__':
         slug = f
         path = os.path.join(settings.GFS_FOLDER, slug)
         if re.match(r'\d{10}', slug) and os.path.isdir(path):
-            find_rainbow_cities(slug)
+            #find_rainbow_cities(slug)
             if len(glob(os.path.join(path, 'PROCESSED'))) > 0:
                 logger.debug("encountered already processed folder %s, stop searching for rainbow-forecasts" % slug)
                 break
