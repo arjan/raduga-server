@@ -29,101 +29,6 @@ try:
 except ImportError:
     grib2json = 'grib2json'
 
-def img2features(image, colours=False):
-    """
-    This takes an image as produced in this file’s main function, `find_rainclouds`.
-    It imagines this image to represent the world mapped in Mercator projection,
-    and for every pixel create a Geo-JSON Feature: a kind of description that can
-    be used on Leaflet.js or Google Maps or other popular mapping solutions.
-
-    Initially this was used to draw the rainclouds and rainbows in the mobile app.
-    But it turned out this approach was to heavy:the app had to draw thousands
-    of little squares. Now the `potrace` program is used, which creates polygons.
-    As explained in the `find_rainclouds` function.
-
-    Attributes:
-
-    colours=False:
-    Given a grey-scale image, return a Geo-JSON string, that for each black pixel
-    represents a square point on the map.
-
-    colours=True:
-    Given a grey-scale image, return a Geo-JSON string, that for each grey pixel
-    represents a square point on the map, with the grey colour as a property.
-    """
-
-    rainbow_colours = [[255, 0, 0], [255, 127, 0], [255, 255, 0], [0, 255, 0], [0, 0, 255], [75, 0, 130], [143, 0, 255]]
-
-    def blend_colours(colour_1, colour_2, percentage):
-        new_colour =[]
-        for i in range(3):
-            new_colour.append( int( colour_1[i] + (colour_2[i] - colour_1[i]) * percentage * .01 ) )
-        return "rgb(" + ', '.join(map(str, new_colour)) + ")"
-
-
-    def gradient_stops(lon):
-        """
-        rainbow value inbetween 0, 700
-        corresponds to lon 25, 192
-        """
-
-        index =  (int(lon) - 25) * 4
-
-        start_colour = rainbow_colours[index // 100]
-        try:
-            end_colour = rainbow_colours[(index // 100) + 1]
-        except IndexError:
-            end_colour = rainbow_colours[6]
-
-        percentage_start = index % 100
-        percentage_stop = percentage_start + 2
-
-        return(blend_colours(start_colour, end_colour, percentage_start), blend_colours(start_colour, end_colour, percentage_stop))
-
-    def px2feature(px, colour=None):
-        left    = px[0] * .5
-        right   = left + 0.5
-        top     = px[1] * -.5 + 90
-        bottom  = top - 0.5
-        feature =  {   "type": "Feature",
-                    "geometry": { "type": "Polygon",
-                        "coordinates": [
-                            [ [left, top], [right, top], [right, bottom], [left, bottom], [left, top] ]
-                        ]
-                     },
-                    "properties": {}
-                 }
-        if colour:
-            # >>> "%0.2x" % 1
-            # '01'
-            # >>> "%0.2x" % 234
-            # 'ea'
-            feature['properties']['colour'] = '#' + 3 * ("%0.2x" % colour)
-        else:
-            feature['properties']['gradient_stops'] = gradient_stops(left)
-        return feature
-
-    feature_collection = {
-                            'features' : [],
-                            'type': 'FeatureCollection'
-                          }
-
-    pixels = image.load()
-    # This is a slow but straightforward way of going about it:
-    for x in range(image.size[0]):
-        for y in range(image.size[1]):
-            colour = pixels[x,y]
-            if colours:
-                # We are interested in all pixels that have a shade of grey
-                if colour != 255:
-                    feature_collection['features'].append(px2feature((x,y), colour))
-            else:
-                # We are only interested in black pixels
-                if colour == 0:
-                    feature_collection['features'].append(px2feature((x,y)))
-
-    return json.dumps(feature_collection, indent=4)
-
 
 def find_rainclouds(THIS_GFS_SLUG):
     global grib2json
@@ -153,9 +58,6 @@ def find_rainclouds(THIS_GFS_SLUG):
     png_cloud_mask_extruded_file_path               = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.cloud_mask.extruded.%s.pwat.png" % THIS_GFS_SLUG)
 
     russia_layer = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', 'russia.png'))
-
-    rainbow_json_file_path = os.path.join(THIS_GFS_FOLDER, "%s.rainbows.json" % THIS_GFS_SLUG)
-    clouds_json_file_path = os.path.join(THIS_GFS_FOLDER, "%s.clouds.json" % THIS_GFS_SLUG)
 
     if not os.path.exists(grib_file_path):
         logger.debug("expected GRIB file not foud")
@@ -299,22 +201,15 @@ def find_rainclouds(THIS_GFS_SLUG):
     cloud_layer.paste(ImageOps.invert(sun_mask), (0, 0), ImageOps.invert(sun_mask))
 
     # Intermediary debug image:
-    cloud_layer.save(png_clouds_greymasked_before_russia_file_path)
-    logger.debug("Showing only rainbows over Russian soil")
-    cloud_layer.paste(russia_layer, (0, 0), russia_layer)
+    #cloud_layer.save(png_clouds_greymasked_before_russia_file_path)
+    #logger.debug("Showing only rainbows over Russian soil")
+    #cloud_layer.paste(russia_layer, (0, 0), russia_layer)
 
-    logger.debug("Encoding the rainbow locations as geographic features in a JSON file")
-    with open(rainbow_json_file_path, 'w') as f:
-        f.write(img2features(cloud_layer))
-
-    logger.debug("Writing image file")
+    logger.debug("Written cloud layer image file")
     cloud_layer.save(png_file_path)
-    logger.debug("Written")
 
     cloud_layer_greyscale.paste(ImageOps.invert(sun_mask), (0, 0), ImageOps.invert(sun_mask))
-    cloud_layer_greyscale.paste(russia_layer, (0, 0), russia_layer)
-    with open(clouds_json_file_path , 'w') as f:
-        f.write(img2features(cloud_layer_greyscale, colours=True))
+    #cloud_layer_greyscale.paste(russia_layer, (0, 0), russia_layer)
     cloud_layer_greyscale.save(png_clouds_greymasked_file_path)
 
     pipe = subprocess.Popen(['./vector.sh', THIS_GFS_SLUG,])

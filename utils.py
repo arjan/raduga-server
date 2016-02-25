@@ -132,6 +132,6 @@ def nocache_redirect(uri):
 
 
 def city_id(city):
-    if type(city) is dict:
+    if 'name_en' in city:
         city = city['name_en']
     return re.sub("[^a-z]", "", city.lower())

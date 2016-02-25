@@ -15,6 +15,7 @@ import sys
 import json
 import codecs
 import requests
+import psycopg2.extras
 
 from glob import glob
 from PIL import Image
@@ -22,6 +23,7 @@ from PIL import Image
 import settings
 from geo import position_to_point
 import utils
+from app import psql
 
 logger = utils.install_logger()
 
@@ -33,18 +35,22 @@ def _push(message, channels):
                "X-Parse-REST-API-Key": settings.PARSE_REST_API_KEY,
                "Content-Type": "application/json"}
     r = s.post('https://api.parse.com/1/push', data=data, headers=headers)
-    logger.debug("Push result: {}".format(r.text))
+    logger.debug("Push result: {}".format(r.text.strip()))
 
 
 def send_push(city):
-    logger.debug(u'send push {}'.format(city['name_en']).encode('utf8'))
-    messages = {"en": u"High chance on rainbows near {}",
-                "ru": u"Высокая вероятность на радугу в районе {}"}
+    messages = {"en": u"High chance on rainbows near {}"}
+    if city['country'] == 'ru':
+        messages["ru"] = u"Высокая вероятность на радугу в районе {}"
     for lang, message in messages.items():
+        if lang != 'en':
+            name = city['name']
+        else:
+            name = city['name_en']
         pf = "-" + lang
-        channels = [utils.city_id(city)+pf] + [utils.city_id(n)+pf for n in city['nearby']]
-        logger.debug(u"Sending pushes for city: {} to channels: {}".format(city['name_'+lang], channels).encode('utf8'))
-        _push(message.format(city['name_'+lang]), channels)
+        channels = [utils.city_id(city)+pf] #+ [utils.city_id(n)+pf for n in city['nearby']]
+        logger.debug(u"Sending pushes for city: {} ({})".format(name, lang).encode('utf8'))
+        _push(message.format(name), channels)
 
 
 def find_rainbow_cities(GFS_SLUG):
@@ -69,13 +75,15 @@ def find_rainbow_cities(GFS_SLUG):
 
     logger.debug("checking each city against rainbow analysis")
 
-    for city in cities:
-        # position_to_point allows to translate a geographic coordinate into a pixel value
-        # for the image we produced from the gfs data
-        point = position_to_point((city['lon'], city['lat']))
-        # there are black pixels where we predict rainbows
-        if access[point[0], point[1]] == 0:
-            rainbow_cities.append(city)
+    xys = []
+    for x in range(image.size[0]):
+        for y in range(image.size[1]):
+            if access[x, y] == 0:
+                xys.append("'%dx%d'" % (x, y))
+
+    cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM worldcities WHERE xy IN (" + (",".join(xys)) + ")")
+    rainbow_cities = cur.fetchall()
 
     if len(rainbow_cities) > 0:
         names = u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')
@@ -113,6 +121,7 @@ if __name__ == '__main__':
         slug = f
         path = os.path.join(settings.GFS_FOLDER, slug)
         if re.match(r'\d{10}', slug) and os.path.isdir(path):
+            find_rainbow_cities(slug)
             if len(glob(os.path.join(path, 'PROCESSED'))) > 0:
                 logger.debug("encountered already processed folder %s, stop searching for rainbow-forecasts" % slug)
                 break
