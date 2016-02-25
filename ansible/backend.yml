@@ -26,6 +26,7 @@
     - supervisor
     - nginx
     - postgresql-9.3
+    - postgresql-server-dev-9.3
     - python-psycopg2
 
   - name: Create upload folder

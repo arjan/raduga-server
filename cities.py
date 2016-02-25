@@ -80,11 +80,13 @@ def find_rainbow_cities(GFS_SLUG):
         for y in range(image.size[1]):
             if access[x, y] == 0:
                 xys.append("'%dx%d'" % (x, y))
-
-    cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM worldcities WHERE xy IN (" + (",".join(xys)) + ")")
-    rainbow_cities = cur.fetchall()
-
+    if len(xys) > 0:
+        cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("SELECT * FROM worldcities WHERE xy IN (" + (",".join(xys)) + ")")
+        rainbow_cities = cur.fetchall()
+    else:
+        rainbow_cities = []
+        
     if len(rainbow_cities) > 0:
         names = u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')
         logger.debug(u"Found rainbow cities: %s" % names)
