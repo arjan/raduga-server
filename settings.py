@@ -28,8 +28,8 @@ def get_latest_gfs_folder():
         slug = f
         path = os.path.join(GFS_FOLDER, slug)
         if re.match(r'\d{10}', slug) and os.path.isdir(path) and len(glob(os.path.join(path, '*pwat.grib'))) > 0:
-            return path, slug
-
+            return (path, slug)
+    return (None, None)
 
 def get_forecast_info():
     forecast_info = []
