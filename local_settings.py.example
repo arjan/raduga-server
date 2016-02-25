@@ -11,3 +11,5 @@ PARSE_APPLICATION_ID = "q23r432423423423423"
 PARSE_REST_API_KEY = "w309r82309i09238r40wpod"
 
 UPLOAD_FOLDER = "/path/to/uploads"
+
+POSTGRES = "dbname='template1' user='dbuser' host='localhost' password='dbpass'"

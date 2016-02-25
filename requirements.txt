@@ -12,12 +12,14 @@ Werkzeug==0.10.4
 argparse==1.2.1
 backports-abc==0.4
 backports.ssl-match-hostname==3.4.0.2
+beautifulsoup4==4.4.1
 certifi==2015.11.20.1
 derpconf==0.7.3
 futures==3.0.3
 itsdangerous==0.24
 libthumbor==1.2.0
 pexif==0.15
+psycopg2==2.6.1
 pycrypto==2.6.1
 pycurl==7.19.5.3
 pymongo==3.0.3
