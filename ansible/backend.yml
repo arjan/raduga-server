@@ -25,6 +25,8 @@
     - potrace
     - supervisor
     - nginx
+    - postgresql-9.3
+    - python-psycopg2
 
   - name: Create upload folder
     file: path={{ upload_folder }} state=directory owner=www-data group=www-data mode=0755
@@ -87,7 +89,28 @@
   - name: Install nginx vhost
     template: src=templates/nginx.conf.j2 dest=/etc/nginx/sites-enabled/01raduga
     notify: reload nginx
-    
+
+  - name: Check if dbs are created already
+    shell: "psql -c 'select 1'"
+    sudo: yes
+    sudo_user: postgres
+    register: db_setup
+    ignore_errors: yes
+
+  - name: Setup postgres cluster to default to utf8
+    shell: "pg_createcluster --start -e UTF-8 9.3 main"
+    when: db_setup.rc != 0 # only do this if the dbs haven't been created yet
+ 
+  - name: Install postgres user
+    sudo: yes
+    sudo_user: postgres
+    postgresql_user: name=raduga password=raduga
+
+  - name: Install main database
+    sudo: yes
+    sudo_user: postgres
+    postgresql_db: name=raduga owner=raduga
+     
   handlers:
     - name: update timezone
       command: dpkg-reconfigure --frontend noninteractive tzdata

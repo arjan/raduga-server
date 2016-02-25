@@ -22,3 +22,5 @@ PARSE_APPLICATION_ID = "GgrCs3g29qpsqUdcO5hoieEtdtKzonD5p93bxn37"
 PARSE_REST_API_KEY = "yIIuVtW4I36HusMfr3B61VziDZt3q9DnXjmwETK8"
 
 UPLOAD_FOLDER = "/home/raduga/photos"
+
+POSTGRES = "dbname='raduga' user='raduga' host='localhost' password='raduga'"
