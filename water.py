@@ -57,8 +57,6 @@ def find_rainclouds(THIS_GFS_SLUG):
     png_cloud_mask_file_path                        = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.cloud_mask.%s.pwat.png" % THIS_GFS_SLUG)
     png_cloud_mask_extruded_file_path               = os.path.join(THIS_GFS_FOLDER, "GFS_half_degree.cloud_mask.extruded.%s.pwat.png" % THIS_GFS_SLUG)
 
-    russia_layer = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', 'russia.png'))
-
     if not os.path.exists(grib_file_path):
         logger.debug("expected GRIB file not foud")
         return False
@@ -212,8 +210,6 @@ def find_rainclouds(THIS_GFS_SLUG):
     #cloud_layer_greyscale.paste(russia_layer, (0, 0), russia_layer)
     cloud_layer_greyscale.save(png_clouds_greymasked_file_path)
 
-    pipe = subprocess.Popen(['./vector.sh', THIS_GFS_SLUG,])
-    pipe.wait()
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
