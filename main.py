@@ -45,7 +45,6 @@ def get_rainbow_cities():
     return jsonify(dict(cities=json.loads(open(path).read())))
 
 @app.route("/app/rainbow-cities")
-@cache.cached(timeout=60)
 def get_latest_rainbow_cities():
     list = sorted(glob.glob(settings.GFS_FOLDER + "/*/*rainbow_cities.json"))[::-1]
     result = []
@@ -56,8 +55,10 @@ def get_latest_rainbow_cities():
             date = datetime.datetime(*time.strptime(os.path.basename(f).split(".")[0], '%Y%m%d%H')[0:6])
             break
 
+    seconds = -1
     if date is not None:
         d = datetime.datetime.utcnow() - date
+        seconds = d.seconds
         if d.days > 0 or d.seconds > 1 * 3600:
             result = []
         date = date.isoformat()
@@ -67,7 +68,7 @@ def get_latest_rainbow_cities():
     d = datetime.datetime.utcnow() - photo['created']
     if d.days > 0 or d.seconds > 4 * 3600:
         photo = None
-    return jsonify(dict(cities=result[:20], date=date, last_photo=photo))
+    return jsonify(dict(cities=result[:20], date=date, seconds=seconds, last_photo=photo))
 
 @app.route("/app/tmp")
 def tmp():
