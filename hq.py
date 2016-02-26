@@ -3,6 +3,7 @@ import json
 from functools import wraps
 from flask import Flask, send_from_directory, redirect, render_template, request, Response, jsonify
 import pymongo
+import datetime
 
 # Local imports
 import settings
@@ -65,3 +66,22 @@ def build():
                 print(e)
                 r['city'] = 'Unknown'
         return render_template("moderate.html", reports=reports)
+
+    @app.route("/hq/moderate-action/<string:id>", methods=['POST'])
+    @requires_auth
+    def moderate_action(id):
+        action = request.form['action']
+        if action == 'remove':
+            db.photos.remove({'id': id})
+            remove_report(id)
+        elif action == 'block':
+            user_id = list(db.photos.find({'id': id}))[0]['user_id']
+            db.blocked_users.insert(dict(user_id=user_id, created=datetime.datetime.utcnow()))
+            db.photos.remove({'id': id})
+            remove_report(id)
+        elif action == 'ignore':
+            remove_report(id)
+        return redirect('/hq/moderate')
+
+    def remove_report(id):
+        db.reports.remove({'photo_id': id})

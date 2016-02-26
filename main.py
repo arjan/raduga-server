@@ -105,8 +105,11 @@ def map_photo(p):
 @app.route("/app/user/<string:user_id>/photo", methods=['POST'])
 def photo_upload(user_id):
     user = db.users.find_one({'id': user_id})
-    #if user is None:
-    #    abort(403)
+
+    blocked = db.blocked_users.find_one({'user_id': user_id}) is not None
+    if blocked:
+        abort(403)
+
     file = request.files['file']
     if not file or not allowed_file(file.filename):
         abort(400)
