@@ -7,6 +7,7 @@ import time
 import datetime
 import glob
 import requests
+import psycopg2.extras
 
 # Dependencies: Flask + PIL or Pillow
 from flask import request, jsonify, abort
@@ -14,12 +15,10 @@ from werkzeug import secure_filename
 
 # Local imports
 import settings
-import geo
 import hq
 import utils
 
-from app import app, cache, db
-from data.cities import data as cities
+from app import app, cache, db, psql
 
 logger = utils.install_logger()
 
@@ -174,9 +173,11 @@ def get_closest_cities():
     lat, lon = float(request.args.get('lat', 0)), float(request.args.get('lon', 0))
     if lat == 0 or lon == 0:
         raise RuntimeError("Invalid request")
-    c = sorted(cities, key=lambda c: (c['lat']-lat)*(c['lat']-lat) + (c['lon']-lon)*(c['lon']-lon))
-    c = [dict(x, id=utils.city_id(x), distance=geo.geo_distance(lat, lon, x['lat'], x['lon'])) for x in c[:int(request.args.get('limit', 5))]]
-    c = [x for x in c if x['distance'] < 100]
+
+    q = "SELECT * FROM worldcities WHERE (point(%(lon)s, %(lat)s) <@> POINT(longitude, latitude)) / 1.60934 < 100 ORDER BY (point(%(lon)s, %(lat)s) <@> POINT(longitude, latitude)) ASC LIMIT 5"
+    cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(q, {'lat': lat, 'lon': lon})
+    c = cur.fetchall()
     return jsonify(dict(cities=c))
 
 
