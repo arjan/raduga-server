@@ -68,7 +68,7 @@ def get_latest_rainbow_cities():
     d = datetime.datetime.utcnow() - photo['created']
     if d.days > 0 or d.seconds > 4 * 3600:
         photo = None
-    return jsonify(dict(cities=result, date=date, last_photo=photo))
+    return jsonify(dict(cities=result[:20], date=date, last_photo=photo))
 
 @app.route("/app/tmp")
 def tmp():
