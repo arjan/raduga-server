@@ -46,29 +46,16 @@ def get_rainbow_cities():
 
 @app.route("/app/rainbow-cities")
 def get_latest_rainbow_cities():
-    list = sorted(glob.glob(settings.GFS_FOLDER + "/*/*rainbow_cities.json"))[::-1]
     result = []
-    date = None
-    for f in list:
-        if os.stat(f).st_size > 2:
-            result = json.loads(open(f).read())
-            date = datetime.datetime(*time.strptime(os.path.basename(f).split(".")[0], '%Y%m%d%H')[0:6])
-            break
-
-    seconds = -1
-    if date is not None:
-        d = datetime.datetime.utcnow() - date
-        seconds = d.seconds
-        if d.days > 0 or d.seconds > 1 * 3600:
-            result = []
-        date = date.isoformat()
+    if os.path.exists(settings.GFS_FOLDER + "/rainbow_cities.json"):
+        result = json.loads(open(settings.GFS_FOLDER + "/rainbow_cities.json", "r").read())
 
     photos = [p for p in db.photos.find().sort('created', pymongo.DESCENDING).limit(1)]
     photo = len(photos) > 0 and map_photo(photos[0]) or None
     d = datetime.datetime.utcnow() - photo['created']
     if d.days > 0 or d.seconds > 4 * 3600:
         photo = None
-    return jsonify(dict(cities=result[:20], date=date, seconds=seconds, last_photo=photo))
+    return jsonify(dict(cities=result[:20], last_photo=photo))
 
 @app.route("/app/tmp")
 def tmp():
