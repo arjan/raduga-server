@@ -74,7 +74,7 @@
     sudo_user: raduga
 
   - name: Add predict.sh crontab
-    cron: name=predict minute="*/15" job="echo 'source /home/raduga/venv/bin/activate; {{ backend }}/predict.sh' | /bin/bash"
+    cron: name=predict minute="30" job="echo 'source /home/raduga/venv/bin/activate; {{ backend }}/predict.sh' | /bin/bash"
     sudo: yes
     sudo_user: raduga
 
