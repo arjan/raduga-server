@@ -10,6 +10,7 @@ import pymongo
 import psycopg2
 
 app = Flask(__name__)
+app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # app.logger.setLevel(logging.DEBUG)
 
