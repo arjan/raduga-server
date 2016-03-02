@@ -169,6 +169,7 @@ def get_closest_cities():
     cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute(q, {'lat': lat, 'lon': lon})
     c = cur.fetchall()
+    c = [dict(city, id=utils.city_id(city)) for city in c]
     return jsonify(dict(cities=c))
 
 
