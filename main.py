@@ -117,11 +117,12 @@ def photo_upload(user_id):
     mm = 'meta' in body and body['meta'] or {}
     if 'lat' in mm:
         print(mm)
-        geo = 'http://maps.google.com/maps/api/geocode/json'
-        params = {'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
-        r = requests.get(geo, params)
-        c = json.loads(r.text)['results'][0]
-        mm['geocode'] = c
+        # FIXME geocoding for china??
+        # geo = 'http://maps.google.com/maps/api/geocode/json'
+        # params = {'key': settings.GOOGLE_API_KEY, 'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
+        # r = requests.get(geo, params)
+        # c = json.loads(r.text)['results'][0]
+        # mm['geocode'] = c
     meta = json.dumps(mm)
 
     doc = dict(id=file_id,
