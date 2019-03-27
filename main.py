@@ -8,6 +8,7 @@ import datetime
 import glob
 import requests
 import psycopg2.extras
+import base64
 
 # Dependencies: Flask + PIL or Pillow
 from flask import request, jsonify, abort
@@ -52,9 +53,10 @@ def get_latest_rainbow_cities():
 
     photos = [p for p in db.photos.find().sort('created', pymongo.DESCENDING).limit(1)]
     photo = len(photos) > 0 and map_photo(photos[0]) or None
-    d = datetime.datetime.utcnow() - photo['created']
-    if d.days > 0 or d.seconds > 4 * 3600:
-        photo = None
+    if photo:
+        d = datetime.datetime.utcnow() - photo['created']
+        if d.days > 0 or d.seconds > 4 * 3600:
+            photo = None
     return jsonify(dict(cities=result[:20], last_photo=photo))
 
 @app.route("/app/tmp")
@@ -97,23 +99,28 @@ def photo_upload(user_id):
     if blocked:
         abort(403)
 
-    file = request.files['file']
-    if not file or not allowed_file(file.filename):
+    body = request.get_json()
+    if body['photo']:
+        (header, data) = body['photo'].split(",", 1)
+        file_id = "%s_%s" % (user_id, int(time.time()))
+        src_file = os.path.join(settings.UPLOAD_FOLDER, "%s" % (file_id))
+        fp = open(src_file, 'w')
+        fp.write(base64.b64decode(data))
+        fp.close()
+    else:
+        print("bad request")
         abort(400)
-    file_id = "%s_%s" % (user_id, int(time.time()))
-    src_file = os.path.join(settings.UPLOAD_FOLDER, "%s_%s" % (file_id, secure_filename(file.filename)))
-    file.save(src_file)
+
     variants = dict([(str(w), resize(src_file, w)) for w in (200, 400, 800)])
 
-    meta = request.values.get('meta', '')
-    mm = json.loads(meta)
+    mm = json.loads(body['meta'] || '{}')
     if 'lat' in mm:
         geo = 'http://maps.google.com/maps/api/geocode/json'
         params = {'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
         r = requests.get(geo, params)
         c = json.loads(r.text)['results'][0]
         mm['geocode'] = c
-        meta = json.dumps(mm)
+    meta = json.dumps(mm)
 
     doc = dict(id=file_id,
                filename=os.path.basename(src_file),
