@@ -103,9 +103,10 @@ def photo_upload(user_id):
     if body['photo']:
         (header, data) = body['photo'].split(",", 1)
         file_id = "%s_%s" % (user_id, int(time.time()))
-        src_file = os.path.join(settings.UPLOAD_FOLDER, "%s" % (file_id))
-        fp = open(src_file, 'w')
-        fp.write(base64.b64decode(data))
+        src_file = os.path.join(settings.UPLOAD_FOLDER, "%s.jpg" % (file_id))
+        print(src_file)
+        fp = open(src_file, 'wb')
+        fp.write(base64.b64decode(data.encode('utf-8')))
         fp.close()
     else:
         print("bad request")
@@ -113,7 +114,7 @@ def photo_upload(user_id):
 
     variants = dict([(str(w), resize(src_file, w)) for w in (200, 400, 800)])
 
-    mm = json.loads(body['meta'] or '{}')
+    mm = json.loads('meta' in body and body['meta'] or '{}')
     if 'lat' in mm:
         geo = 'http://maps.google.com/maps/api/geocode/json'
         params = {'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
