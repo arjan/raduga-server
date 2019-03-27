@@ -83,6 +83,13 @@ def resize(src_file, width):
     return os.path.basename(target_file)
 
 
+def closest_cities(lat, lon):
+    q = "SELECT * FROM worldcities WHERE (point(%(lon)s, %(lat)s) <@> POINT(longitude, latitude)) / 1.60934 < 100 ORDER BY (point(%(lon)s, %(lat)s) <@> POINT(longitude, latitude)) ASC LIMIT 5"
+    cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(q, {'lat': lat, 'lon': lon})
+    c = cur.fetchall()
+    return [dict(city, id=utils.city_id(city)) for city in c]
+
 def map_photo(p):
     return dict(created=p['created'],
                 filename=p['filename'],
@@ -117,12 +124,9 @@ def photo_upload(user_id):
     mm = 'meta' in body and body['meta'] or {}
     if 'lat' in mm:
         print(mm)
-        # FIXME geocoding for china??
-        # geo = 'http://maps.google.com/maps/api/geocode/json'
-        # params = {'key': settings.GOOGLE_API_KEY, 'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
-        # r = requests.get(geo, params)
-        # c = json.loads(r.text)['results'][0]
-        # mm['geocode'] = c
+        c = closest_cities(mm['lat'], mm['lng'])
+        if len(c) > 0:
+            mm.update(c[0])
     meta = json.dumps(mm)
 
     doc = dict(id=file_id,
@@ -160,7 +164,6 @@ def all_photos():
 def get_clouds_png():
     return utils.nocache_redirect(settings.get_latest_clouds_alpha_url())
 
-
 @app.route("/app/report/<string:photo_id>", methods=['POST'])
 def report_photo(photo_id):
     reason = request.get_json().get('reason', "")
@@ -168,19 +171,12 @@ def report_photo(photo_id):
     logger.debug("Photo reported: {} / {}".format(photo_id, reason))
     return jsonify(dict(result="ok"))
 
-
 @app.route("/app/closest-cities")
 def get_closest_cities():
     lat, lon = float(request.args.get('lat', 0)), float(request.args.get('lon', 0))
     if lat == 0 or lon == 0:
         raise RuntimeError("Invalid request")
-
-    q = "SELECT * FROM worldcities WHERE (point(%(lon)s, %(lat)s) <@> POINT(longitude, latitude)) / 1.60934 < 100 ORDER BY (point(%(lon)s, %(lat)s) <@> POINT(longitude, latitude)) ASC LIMIT 5"
-    cur = psql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute(q, {'lat': lat, 'lon': lon})
-    c = cur.fetchall()
-    c = [dict(city, id=utils.city_id(city)) for city in c]
-    return jsonify(dict(cities=c))
+    return jsonify(dict(cities=closest_cities(lat, lon)))
 
 
 hq.build()
