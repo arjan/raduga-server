@@ -113,7 +113,7 @@ def photo_upload(user_id):
 
     variants = dict([(str(w), resize(src_file, w)) for w in (200, 400, 800)])
 
-    mm = json.loads(body['meta'] || '{}')
+    mm = json.loads(body['meta'] or '{}')
     if 'lat' in mm:
         geo = 'http://maps.google.com/maps/api/geocode/json'
         params = {'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
