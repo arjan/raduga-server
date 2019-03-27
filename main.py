@@ -116,6 +116,7 @@ def photo_upload(user_id):
 
     mm = 'meta' in body and body['meta'] or {}
     if 'lat' in mm:
+        print(mm)
         geo = 'http://maps.google.com/maps/api/geocode/json'
         params = {'sensor': 'false', 'latlng': '%.5f,%.5f' % (mm['lat'], mm['lng'])}
         r = requests.get(geo, params)
