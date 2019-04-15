@@ -14,7 +14,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # app.logger.setLevel(logging.DEBUG)
 
-cors = CORS(app)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
