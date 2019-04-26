@@ -30,27 +30,23 @@ logger = utils.install_logger()
 s = requests.Session()
 
 def _push(message, channels):
-    data = json.dumps({"channels": channels, "data": {"alert": message}})
-    headers = {"X-Parse-Application-Id": settings.PARSE_APPLICATION_ID,
-               "X-Parse-REST-API-Key": settings.PARSE_REST_API_KEY,
-               "Content-Type": "application/json"}
-    r = s.post('https://api.parse.com/1/push', data=data, headers=headers)
-    logger.debug("Push result: {}".format(r.text.strip()))
+    for channel in channels:
+        data = json.dumps({"to": channel, "data": {"message": message}})
+        headers = {"Content-Type": "application/json"}
+        r = s.post('https://api.pushy.me/push?api_key=' + settings.PUSHY_KEY, data=data, headers=headers)
+        logger.debug("PUSH TO {} → result: {}".format(channel, r.text.strip()))
 
 
 def send_push(city):
-    messages = {"en": u"High chance on rainbows near {}"}
+    template = u"High chance on rainbows near {}"
     if city['country'] == 'ru':
-        messages["ru"] = u"Высокая вероятность на радугу в районе {}"
-    for lang, message in messages.items():
-        if lang != 'en':
-            name = city['name']
-        else:
-            name = city['name_en']
-        pf = "-" + lang
-        channels = [utils.city_id(city)+pf] #+ [utils.city_id(n)+pf for n in city['nearby']]
-        logger.debug(u"Sending pushes for city: {} ({})".format(name, lang).encode('utf8'))
-        _push(message.format(name), channels)
+        template = u"Радуга обнаружена на расстоянии {}"
+    if city['country'] == 'cn':
+        template = u"发现彩虹：距你 {}"
+    channels = ['/topics/' + utils.city_id(city)]
+    name = city['name']
+    logger.debug(u"Sending pushes for city: {} ({})".format(name, str(channels)).encode('utf8'))
+    _push(template.format(name), channels)
 
 
 def find_rainbow_cities(GFS_SLUG):
@@ -86,7 +82,7 @@ def find_rainbow_cities(GFS_SLUG):
         rainbow_cities = cur.fetchall()
     else:
         rainbow_cities = []
-        
+
     if len(rainbow_cities) > 0:
         names = u', '.join((city['name_en'] for city in rainbow_cities)).encode('utf8')
         logger.debug(u"Found rainbow cities: %s" % names)
@@ -109,8 +105,8 @@ def find_rainbow_cities(GFS_SLUG):
 
 
 def test_notifications():
-    city = {"href_en": "http://en.wikipedia.org/wiki/Ust-Labinsk", "name_ru": u"Усть-Лабинск", "name_en": u"Ust-Labinsk", "nearby": ["Adygeysk", "Apsheronsk", "Belorechensk", "Goryachy Klyuch", "Gulkevichi", "Khadyzhensk", "Korenovsk", "Krasnodar", "Kropotkin", "Kurganinsk", "Maykop", "Tikhoretsk", "Timashyovsk"], "lon": 39.7, "lat": 45.217}
-    _push(u"Test push message", ["debug"])
+    city = {'id': 'f4be2e51ef2a9c01007d0025280664b2', 'country': 'cn', 'name': 'Dawukou', 'name_en': 'Dawukou'}
+    _push(u"Test push message", ["/topics/debugging"])
     #send_push(city)
 
 if __name__ == '__main__':
