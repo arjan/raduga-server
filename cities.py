@@ -43,7 +43,7 @@ def send_push(city):
         template = u"Радуга обнаружена на расстоянии {}"
     if city['country'] == 'cn':
         template = u"发现彩虹：距你 {}"
-    channels = ['/topics/' + utils.city_id(city)]
+    channels = ['/topics/city-' + utils.city_id(city)]
     name = city['name']
     logger.debug(u"Sending pushes for city: {} ({})".format(name, str(channels)).encode('utf8'))
     _push(template.format(name), channels)
@@ -107,6 +107,7 @@ def find_rainbow_cities(GFS_SLUG):
 def test_notifications():
     city = {'id': 'f4be2e51ef2a9c01007d0025280664b2', 'country': 'cn', 'name': 'Dawukou', 'name_en': 'Dawukou'}
     _push(u"Test push message", ["/topics/debugging"])
+    # _push(u"Test push message", ["/topics/city-amsterdam"])
     #send_push(city)
 
 if __name__ == '__main__':
