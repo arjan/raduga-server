@@ -35,7 +35,6 @@ def save(city):
     cur = psql.cursor()
     cur.execute("INSERT INTO worldcities (id, country, latitude, longitude, xy, name, name_en) SELECT %(id)s, %(country)s, %(latitude)s, %(longitude)s, %(xy)s, %(name)s, %(name_en)s WHERE NOT EXISTS (SELECT 1 FROM worldcities WHERE id = %(id)s)", city)
 
-
 def fill_db():
     with open('scrape/cities.txt', 'rU') as f:
         for row in f:
@@ -46,7 +45,7 @@ def fill_db():
             pop = int(pop)
             if pop < 50000:
                 continue
-            id = city_id(lat, lng)    
+            id = city_id(lat, lng)
             city = {'id': id, 'latitude': lat, 'longitude': lng, 'xy': xy(lat, lng), 'name': name, 'name_en': name, 'country': country}
             save(city)
         psql.commit()
@@ -60,6 +59,34 @@ def fill_db_ru():
     psql.commit()
 
 
+def fill_db_cn():
+    psql.cursor().execute("DELETE FROM worldcities WHERE country = 'cn'")
+    psql.commit()
+    #return
+    cn_names = open('scrape/cn_names.txt').read().strip().split("\n")
+    with open('scrape/cn.csv', 'rU') as f:
+        i = 0
+        for row in f:
+            row = row.strip().split(",")
+            (name_en,lat,lng,country,iso2,admin,capital,population,population_proper) = row
+            country = 'cn'
+            lat = float(lat)
+            lng = float(lng)
+            if not population:
+                continue
+            pop = int(population)
+            if pop < 50000:
+                continue
+
+            name = cn_names[i]
+            i += 1
+
+            id = city_id(lat, lng)
+            city = {'id': id, 'latitude': lat, 'longitude': lng, 'xy': xy(lat, lng), 'name': name, 'name_en': name_en, 'country': 'cn'}
+            save(city)
+        psql.commit()
+        print(f"{i} records inserted.")
+
 try:
     cur = psql.cursor()
     cur.execute("SELECT * FROM worldcities LIMIT 1")
@@ -70,4 +97,5 @@ finally:
     cur.close()
 
 #fill_db()
-fill_db_ru()    
+#fill_db_ru()
+fill_db_cn()
